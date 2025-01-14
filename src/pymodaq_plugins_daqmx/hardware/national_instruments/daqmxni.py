@@ -311,20 +311,20 @@ class NIDAQmx:
                                                                    value_max=float(ai[ch].get("value_max")),
                                                                    thermo_type=th,
                                                                    ))
-                        elif source == "ci":
-                            ci = config["NIDAQ_Devices", dev, mod, source]
+                        elif src == "ci":
+                            ci = config["NIDAQ_Devices", dev, mod, src]
                             for ch in ci.keys():
                                 name = module_name + "/" + str(ch)
-                                source = ci[ch].get("source")
-                                counter_type = ci[ch].get("counter_type")
-                                edge = ci[ch].get("edge")
-                                count_dir = ci[ch].get("count_direction")
+                                source = ChannelType[ci[ch].get("source")]
+                                counter_type = UsageTypeCI[ci[ch].get("counter_type")]
+                                edge = Edge[ci[ch].get("edge")]
+                                count_dir = CountDirection[ci[ch].get("count_direction")]
                                 viewer.config_channels.append(CIChannel
                                                               (name=name,
                                                                source=source,
-                                                               counter_type=UsageTypeCI.__getitem__(counter_type),
-                                                               edge=Edge.__getitem__(edge),
-                                                               count_dir=CountDirection.__getitem__(count_dir),
+                                                               counter_type=counter_type,
+                                                               edge=edge,
+                                                               count_dir=count_dir,
                                                                ))
             logger.info("Devices from config: {}".format(viewer.config_devices))
             logger.info("Modules from config: {}".format(viewer.config_modules))
@@ -546,7 +546,7 @@ class NIDAQmx:
                             trigger_settings.level)
                     else:
                         raise IOError('Unsupported Trigger source')
-            logger.info("Task's channels{}".format(self._task.ai_channels.channel_names))
+            logger.info("Task's channels {}".format(self._task.ai_channels.channel_names))
         except Exception as e:
             logger.error("Exception caught: {}".format(e))
             logger.error(traceback.format_exc())
