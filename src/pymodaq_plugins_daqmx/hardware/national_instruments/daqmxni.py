@@ -311,6 +311,21 @@ class NIDAQmx:
                                                                    value_max=float(ai[ch].get("value_max")),
                                                                    thermo_type=th,
                                                                    ))
+                        elif source == "ci":
+                            ci = config["NIDAQ_Devices", dev, mod, source]
+                            for ch in ci.keys():
+                                name = module_name + "/" + str(ch)
+                                source = ci[ch].get("source")
+                                counter_type = ci[ch].get("counter_type")
+                                edge = ci[ch].get("edge")
+                                count_dir = ci[ch].get("count_direction")
+                                viewer.config_channels.append(CIChannel
+                                                              (name=name,
+                                                               source=source,
+                                                               counter_type=UsageTypeCI.__getitem__(counter_type),
+                                                               edge=Edge.__getitem__(edge),
+                                                               count_dir=CountDirection.__getitem__(count_dir),
+                                                               ))
             logger.info("Devices from config: {}".format(viewer.config_devices))
             logger.info("Modules from config: {}".format(viewer.config_modules))
             logger.info("Channels from config: {}".format([ch.name for ch in viewer.config_channels]))
