@@ -1,7 +1,8 @@
-from ..hardware.national_instruments.daq_NIDAQmx import DAQ_NIDAQmx_Actuator
+from pymodaq_plugins_daqmx.hardware.national_instruments.NIDAQmx_Viewer import DAQ_NIDAQmx_Viewer
+from pymodaq.control_modules.viewer_utility_classes import main
 
 
-class DAQ_Move_DAQmx(DAQ_NIDAQmx_Actuator):
+class DAQ_1DViewer_NIDAQmx(DAQ_NIDAQmx_Viewer):
     """
         ==================== ========================
         **Attributes**         **Type**
@@ -14,6 +15,11 @@ class DAQ_Move_DAQmx(DAQ_NIDAQmx_Actuator):
         --------
         refresh_hardware
     """
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    control_type = "1D"  # could be "0D", "1D"
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, control_type=self.control_type, **kwargs)
+
+
+if __name__ == '__main__':
+    main(__file__)
