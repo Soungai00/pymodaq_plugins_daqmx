@@ -26,20 +26,20 @@ class ScalableGroupAI(GroupParameter):
         hardware.DAQ_Move_Stage_type
     """
 
-    params = [{'title': 'AI type:', 'name': 'ai_type', 'type': 'list', 'limits': [Uai.name for Uai in UsageTypeAI]},
-              {'title': 'Voltage:', 'name': 'voltage_settings', 'type': 'group', 'children': [
-                  {'title': 'Voltage Min:', 'name': 'volt_min', 'type': 'float', 'value': -10.},
-                  {'title': 'Voltage Max:', 'name': 'volt_max', 'type': 'float', 'value': 10.},
+    params = [{'title': 'AI type:', 'name': 'ai_type', 'type': 'list', 'visible': True, 'limits': [Uai.name for Uai in UsageTypeAI]},
+              {'title': 'VOLTAGE:', 'name': 'voltage_settings', 'type': 'group', 'visible': False, 'children': [
+                  {'title': 'Voltage Min:', 'name': 'volt_min', 'type': 'float', 'value': -5, 'suffix': 'V'},
+                  {'title': 'Voltage Max:', 'name': 'volt_max', 'type': 'float', 'value': 5, 'suffix': 'V'},
               ]},
-              {'title': 'Current:', 'name': 'current_settings', 'type': 'group', 'visible': False, 'children': [
+              {'title': 'CURRENT:', 'name': 'current_settings', 'type': 'group', 'visible': False, 'children': [
                   {'title': 'Current Min:', 'name': 'curr_min', 'type': 'float', 'value': -1, 'suffix': 'A'},
                   {'title': 'Current Max:', 'name': 'curr_max', 'type': 'float', 'value': 1, 'suffix': 'A'},
               ]},
-              {'title': 'Thermocouple:', 'name': 'thermoc_settings', 'type': 'group', 'visible': False, 'children': [
+              {'title': 'TEMPERATURE_THERMOCOUPLE:', 'name': 'thermoc_settings', 'type': 'group', 'visible': False, 'children': [
                   {'title': 'Thc. type:', 'name': 'thermoc_type', 'type': 'list',
                    'limits': [Th.name for Th in ThermocoupleType], 'value': 'K'},
-                  {'title': 'Temp. Min (°C):', 'name': 'T_min', 'type': 'float', 'value': 0, 'suffix': '°C'},
-                  {'title': 'Temp. Max (°C):', 'name': 'T_max', 'type': 'float', 'value': 50, 'suffix': '°C'},
+                  {'title': 'Temp. Min:', 'name': 'T_min', 'type': 'float', 'value': 0, 'suffix': '°C'},
+                  {'title': 'Temp. Max:', 'name': 'T_max', 'type': 'float', 'value': 50, 'suffix': '°C'},
               ]},
               {'title': 'Termination:', 'name': 'termination', 'type': 'list',
                'limits': [Te.name for Te in TerminalConfiguration]},
@@ -60,13 +60,7 @@ class ScalableGroupAI(GroupParameter):
             *typ*            string
             =============== ===========
         """
-        childnames = [par.name() for par in self.children()]
-        if childnames == []:
-            newindex = 0
-        else:
-            newindex = len(childnames)
-
-        child = {'title': typ, 'name': 'ai{:02.0f}'.format(newindex), 'type': 'group', 'children': self.params,
+        child = {'title': typ, 'name': '{}'.format(typ.replace("/", "_")), 'type': 'group', 'children': self.params,
                  'removable': True, 'renamable': False}
 
         self.addChild(child)
@@ -90,11 +84,11 @@ class ScalableGroupAO(GroupParameter):
     """
 
     params = [{'title': 'AO type:', 'name': 'ao_type', 'type': 'list', 'limits': [Uao.name for Uao in UsageTypeAO]},
-              {'title': 'Voltages:', 'name': 'voltage_settings', 'type': 'group', 'children': [
-                  {'title': 'Voltage Min:', 'name': 'volt_min', 'type': 'list', 'value': -10., },
-                  {'title': 'Voltage Max:', 'name': 'volt_max', 'type': 'list', 'value': 10., },
+              {'title': 'VOLTAGE:', 'name': 'voltage_settings', 'type': 'group', 'children': [
+                  {'title': 'Voltage Min:', 'name': 'volt_min', 'type': 'list', 'value': -10., 'suffix': 'V'},
+                  {'title': 'Voltage Max:', 'name': 'volt_max', 'type': 'list', 'value': 10., 'suffix': 'V'},
               ]},
-              {'title': 'Current:', 'name': 'current_settings', 'type': 'group', 'visible': False, 'children': [
+              {'title': 'CURRENT:', 'name': 'current_settings', 'type': 'group', 'visible': False, 'children': [
                   {'title': 'Current Min:', 'name': 'curr_min', 'type': 'float', 'value': -1, 'suffix': 'A'},
                   {'title': 'Current Max:', 'name': 'curr_max', 'type': 'float', 'value': 1, 'suffix': 'A'},
               ]},
@@ -115,13 +109,7 @@ class ScalableGroupAO(GroupParameter):
             *typ*            string
             =============== ===========
         """
-        childnames = [par.name() for par in self.children()]
-        if childnames == []:
-            newindex = 0
-        else:
-            newindex = len(childnames)
-
-        child = {'title': typ, 'name': 'ao{:02.0f}'.format(newindex), 'type': 'group', 'children': self.params,
+        child = {'title': typ, 'name': 'ao{:02.0f}'.format(typ.replace("/", "_")), 'type': 'group', 'children': self.params,
                  'removable': True, 'renamable': False}
 
         self.addChild(child)
@@ -161,13 +149,7 @@ class ScalableGroupCounter(GroupParameter):
             *typ*            string
             =============== ===========
         """
-        childnames = [par.name() for par in self.children()]
-        if childnames == []:
-            newindex = 0
-        else:
-            newindex = len(childnames)
-
-        child = {'title': typ, 'name': 'counter{:02.0f}'.format(newindex), 'type': 'group', 'children': self.params,
+        child = {'title': typ, 'name': 'counter{:02.0f}'.format(typ.replace("/", "_")), 'type': 'group', 'children': self.params,
                  'removable': True, 'renamable': False}
 
         self.addChild(child)
@@ -197,13 +179,7 @@ class ScalableGroupDI(GroupParameter):
             *typ*            string
             =============== ===========
         """
-        childnames = [par.name() for par in self.children()]
-        if childnames == []:
-            newindex = 0
-        else:
-            newindex = len(childnames)
-
-        child = {'title': typ, 'name': 'di{:02.0f}'.format(newindex), 'type': 'group', 'children': self.params,
+        child = {'title': typ, 'name': 'di{:02.0f}'.format(typ.replace("/", "_")), 'type': 'group', 'children': self.params,
                  'removable': True, 'renamable': False}
         self.addChild(child)
 
@@ -232,13 +208,7 @@ class ScalableGroupDO(GroupParameter):
             *typ*            string
             =============== ===========
         """
-        childnames = [par.name() for par in self.children()]
-        if childnames == []:
-            newindex = 0
-        else:
-            newindex = len(childnames)
-
-        child = {'title': typ, 'name': 'counter{:02.0f}'.format(newindex), 'type': 'group', 'children': self.params,
+        child = {'title': typ, 'name': 'counter{:02.0f}'.format(typ.replace("/", "_")), 'type': 'group', 'children': self.params,
                  'removable': True, 'renamable': False}
         self.addChild(child)
 
