@@ -1,8 +1,8 @@
 from qtpy import QtWidgets
 from qtpy.QtCore import Signal
-from pymodaq.utils.logger import set_logger, get_module_name
-from pymodaq.utils.parameter import Parameter
-from pymodaq.utils.parameter.pymodaq_ptypes import registerParameterType, GroupParameter
+from pymodaq_utils.logger import set_logger, get_module_name
+from pymodaq_gui.parameter import Parameter
+from pymodaq_gui.parameter.pymodaq_ptypes import registerParameterType, GroupParameter
 from pymodaq_plugins_daqmx.hardware.national_instruments.daqmxni import NIDAQmx, Edge, ChannelType, ClockSettings, \
     AIChannel, AIThermoChannel, AOChannel, CIChannel, COChannel, DOChannel, DIChannel, UsageTypeAI, UsageTypeAO, \
     ThermocoupleType, TerminalConfiguration, TriggerSettings

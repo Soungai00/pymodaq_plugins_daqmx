@@ -49,7 +49,7 @@ class DAQ_0DViewer_NIDAQmx(DAQ_NIDAQmx_Viewer):
 
     def close(self):
         self.live = False
-        self.controller.stop()
+        self.stop()
         self.controller.close()
         pass
 

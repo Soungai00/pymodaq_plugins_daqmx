@@ -560,13 +560,19 @@ class NIDAQmx:
 
     @classmethod
     def getAIVoltageRange(cls, device='Dev1'):
-        ret = niSystem.local().devices[device].ai_voltage_rngs  # todo self.devices[device].ai_voltage_rngs
-        return [tuple(ret[6:8])]
+        return niSystem.local().devices[device].ai_voltage_rngs[6:8]  # todo self.devices[device].ai_voltage_rngs
+
+    @classmethod
+    def getAICurrentRange(cls, device='Dev1'):
+        return niSystem.local().devices[device].ai_current_rngs[6:8]  # todo self.devices[device].ai_current_rngs
 
     @classmethod
     def getAOVoltageRange(cls, device='Dev1'):
-        ret = niSystem.local().devices[device].ao_voltage_rngs  # todo self.devices[device].ao_voltage_rngs
-        return [tuple(ret)]  # [(-10., 10.)] Why this format is needed??
+        return niSystem.local().devices[device].ao_voltage_rngs  # todo self.devices[device].ao_voltage_rngs
+
+    @classmethod
+    def getAOCurrentRange(cls, device='Dev1'):
+        return niSystem.local().devices[device].ao_current_rngs  # todo self.devices[device].ao_current_rngs
 
     def stop(self):
         if self._task is not None:

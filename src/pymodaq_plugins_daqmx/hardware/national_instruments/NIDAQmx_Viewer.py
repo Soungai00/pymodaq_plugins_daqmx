@@ -57,7 +57,7 @@ class DAQ_NIDAQmx_Viewer(DAQ_Viewer_base, DAQ_NIDAQmx_base):
     def stop(self):
         """Stop the current grab hardware wise if necessary"""
         try:
-            self.controller.stop()
+            DAQ_NIDAQmx_base.stop(self)
             self.live = False
             logger.info("Acquisition stopped.")
         except Exception:
@@ -84,31 +84,13 @@ class DAQ_NIDAQmx_Viewer(DAQ_Viewer_base, DAQ_NIDAQmx_base):
                 device = param.opts['title'].split('/')[0]
                 self.settings.child('clock_settings', 'frequency').setOpts(max=self.controller.getAIMaxRate(device))
 
-                ranges = self.controller.getAIVoltageRange(device)
-                param.child('voltage_settings', 'volt_min').setOpts(limits=[r[0] for r in ranges])
-                param.child('voltage_settings', 'volt_max').setOpts(limits=[r[1] for r in ranges])
-
-        DAQ_NIDAQmx_base.commit_settings(self, param)
-
-    def ini_detector(self, controller=None):
-        """
-            Initialisation procedure of the detector.
-
-            See Also
-            --------
-            daq_utils.ThreadCommand
-        """
-        try:
-            self.current_device = nidaqmx.system.Device(self.settings["devices"])
-            self.controller = self.ini_detector_init(controller, NIDAQmx())
-            self.controller.configuration_sequence(self, self.current_device)
-
-            # actions to perform in order to set properly the settings tree options
-            self.commit_settings(self.settings.child('NIDAQ_type'))
-            for ch in self.config_channels:
+                volt_ranges = self.controller.getAIVoltageRange(device)
+                curr_ranges = self.controller.getAICurrentRange(device)
                 try:
-                    ch.analog_type = ch.analog_type
-                    ch.termination = ch.termination
+                    param.child('voltage_settings', 'volt_min').setValue(volt_ranges[0])
+                    param.child('voltage_settings', 'volt_max').setValue(volt_ranges[1])
+                    param.child('current_settings', 'curr_min').setValue(curr_ranges[0])
+                    param.child('current_settings', 'curr_max').setValue(curr_ranges[1])
                 except:
                     pass
                 if self.settings.child("devices").value() in ch.name:
