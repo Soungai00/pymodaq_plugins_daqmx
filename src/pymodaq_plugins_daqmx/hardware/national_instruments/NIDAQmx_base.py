@@ -255,6 +255,7 @@ class DAQ_NIDAQmx_base:
     params = [{'title': 'Refresh hardware:', 'name': 'refresh_hardware', 'type': 'bool', 'value': False},
               {'title': 'Signal type:', 'name': 'NIDAQ_type', 'type': 'list',
                'limits': [Ds.name for Ds in ChannelType]},
+              {'title': 'Load configuration', 'name': 'load_config', 'type': 'bool', 'value': False, 'readonly': False},
               {'title': 'NSamples To Read', 'name': 'nsamplestoread', 'type': 'int', 'value': 1000, 'default': 1000,
                'min': 1},
               {'title': 'AO Settings:', 'name': 'ao_settings', 'type': 'group', 'children': [
