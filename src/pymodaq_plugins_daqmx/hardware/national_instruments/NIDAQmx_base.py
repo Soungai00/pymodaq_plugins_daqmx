@@ -388,6 +388,8 @@ class DAQ_NIDAQmx_base:
                             level=self.settings['trigger_settings', 'level'], )
         if self.channels:
             self.controller.update_task(self.channels, self.clock_settings, trigger_settings=self.trigger_settings)
+        else:
+            logger.warning("No channels assigned, task not created")
 
     def get_channels_from_settings(self):
         channels = []

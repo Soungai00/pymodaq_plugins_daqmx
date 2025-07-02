@@ -201,7 +201,10 @@ class DAQ_NIDAQmx_Viewer(DAQ_Viewer_base, DAQ_NIDAQmx_base):
             self.update_task()
 
         if self.settings['NIDAQ_type'] == ChannelType.ANALOG_INPUT.name:
-            self.controller.register_callback(self.emit_data, "Nsamples", self.clock_settings.Nsamples)
+            try:
+                self.controller.register_callback(self.emit_data, "Nsamples", self.clock_settings.Nsamples)
+            except AttributeError:
+                logger.error("Can't find a task to run")
         elif self.settings['NIDAQ_type'] == ChannelType.COUNTER_INPUT.name:
             self.timer.start(self.settings['counter_settings', 'counting_time'])
         self.controller.start()
