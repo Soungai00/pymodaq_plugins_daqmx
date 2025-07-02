@@ -221,12 +221,11 @@ class DAQ_NIDAQmx_base:
         Base NIDAQmx class for using DAQmx objects from daqmxni.py in the DAQ_NIDAQmx_Move & DAQ_NIDAQmx_Viewer
     """
     data_grabed_signal = Signal(list)
-    param_instance = NIDAQmx()
     params = [{'title': 'Refresh hardware:', 'name': 'refresh_hardware', 'type': 'bool', 'value': False},
               {'title': 'Signal type:', 'name': 'NIDAQ_type', 'type': 'list',
                'limits': [Ds.name for Ds in ChannelType]},
               {'title': 'Load configuration', 'name': 'load_config', 'type': 'bool', 'value': False, 'readonly': False},
-              {'title': 'NSamples To Read', 'name': 'nsamplestoread', 'type': 'int', 'value': 1000, 'default': 1000,
+              {'title': 'NSamples To Read', 'name': 'nsamplestoread', 'type': 'int', 'value': 10, 'default': 10,
                'min': 1},
               {'title': 'AO Settings:', 'name': 'ao_settings', 'type': 'group', 'children': [
                   {'title': 'Waveform:', 'name': 'waveform', 'type': 'list', 'value': 'DC',
@@ -241,8 +240,8 @@ class DAQ_NIDAQmx_base:
                    ]},
               ]},
               {'title': 'Clock Settings:', 'name': 'clock_settings', 'type': 'group', 'children': [
-                  {'title': 'Nsamples:', 'name': 'Nsamples', 'type': 'int', 'value': 1000, 'default': 1000, 'min': 1},
-                  {'title': 'Frequency:', 'name': 'frequency', 'type': 'float', 'value': 1000., 'default': 1000.,
+                  {'title': 'Nsamples:', 'name': 'Nsamples', 'type': 'int', 'value': 10, 'default': 10, 'min': 1},
+                  {'title': 'Frequency:', 'name': 'frequency', 'type': 'float', 'value': 10., 'default': 10.,
                    'min': 0., 'suffix': 'Hz'},
                   {'title': 'Repetition?:', 'name': 'repetition', 'type': 'bool', 'value': False, },
               ]
