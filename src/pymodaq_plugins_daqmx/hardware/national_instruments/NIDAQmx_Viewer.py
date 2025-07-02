@@ -49,11 +49,6 @@ class DAQ_NIDAQmx_Viewer(DAQ_Viewer_base, DAQ_NIDAQmx_base):
         self.settings.child('ao_settings').hide()
         self.settings.child('ao_channels').hide()
 
-        # timer used for the counter
-        self.timer = QtCore.QTimer()
-        self.timer.setSingleShot(True)
-        self.timer.timeout.connect(self.counter_done)
-
     def stop(self):
         """Stop the current grab hardware wise if necessary"""
         try:
@@ -211,7 +206,6 @@ class DAQ_NIDAQmx_Viewer(DAQ_Viewer_base, DAQ_NIDAQmx_base):
 
     def emit_data(self, task_handle, every_n_samples_event_type, number_of_samples, callback_data):
         channels_names = [ch.name for ch in self.channels]
-        # channels_ai_names = [ch.name for ch in self.channels if ch.source == 'Analog_Input']
         data_from_task = self.controller.task.read(self.settings['nsamplestoread'], timeout=20.0)
         if self.control_type == "0D":
             if not len(self.controller.task.channels.channel_names) != 1:
