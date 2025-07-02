@@ -250,6 +250,8 @@ class NIDAQmx:
             for dev in config["NIDAQ_Devices"]:
                 if not isinstance(config["NIDAQ_Devices", dev], dict):
                     continue
+                elif 'Example' in dev:
+                    continue
                 try:
                     device_name = config["NIDAQ_Devices", dev].get('name')
                     if not device_name == current_device.name:
@@ -262,6 +264,8 @@ class NIDAQmx:
                     continue
                 for mod in config["NIDAQ_Devices", dev]:
                     if not isinstance(config["NIDAQ_Devices", dev, mod], dict):
+                        continue
+                    elif 'Example' in mod:
                         continue
                     try:
                         module_name = config["NIDAQ_Devices", dev, mod].get('name')
@@ -278,6 +282,8 @@ class NIDAQmx:
                         if src == "ai":
                             ai = config["NIDAQ_Devices", dev, mod, src]
                             for ch in ai.keys():
+                                if 'Example' in ch:
+                                    continue
                                 name = module_name + "/" + str(ch)
                                 source = ChannelType[ai[ch].get("source")]
                                 analog_type = UsageTypeAI[ai[ch].get("analog_type")]
@@ -294,13 +300,13 @@ class NIDAQmx:
                                 elif analog_type == UsageTypeAI.CURRENT:
                                     term = TerminalConfiguration[ai[ch].get("termination")]
                                     viewer.config_channels.append(AIChannel
-                                                                (name=name,
-                                                                 source=source,
-                                                                 analog_type=analog_type,
-                                                                 value_min=float(ai[ch].get("value_min")),
-                                                                 value_max=float(ai[ch].get("value_max")),
-                                                                 termination=term,
-                                                                 ))
+                                                                  (name=name,
+                                                                   source=source,
+                                                                   analog_type=analog_type,
+                                                                   value_min=float(ai[ch].get("value_min")),
+                                                                   value_max=float(ai[ch].get("value_max")),
+                                                                   termination=term,
+                                                                   ))
                                 elif analog_type == UsageTypeAI.TEMPERATURE_THERMOCOUPLE:
                                     th = ThermocoupleType[ai[ch].get("thermo_type")]
                                     viewer.config_channels.append(AIThermoChannel

@@ -41,6 +41,18 @@ Viewer0D
 ++++++++
 
 * **DAQmx_PLcounter**: Single photon counting
-* **NIDAQmx**: For now (01/2025) Only Analog Input tested and working. (current-voltage-temperature measurements on cDAQ & DAQ-USB)
+* **NIDAQmx**: General measurement with National Instrument materials
 
+NIDAQmx Viewer
+++++++++++++++
 
+This viewer aims at being very general and allows measurement with as much different NI modules as possible.
+At this point (06/2025), it supports Analog measurement of currents, voltages and temperatures from thermocouples.
+
+Tests have been running with the following devices:
+    * Chassis NI cDAQ-9174 & NI USB-9162
+    * NI modules 9211 & 9205
+
+Acquisition channels can ge generated directly running the viewer, but it is also possible to load channels from the configuration file config_daqmx.toml clicking on "load configuration" in the parameter tree
+
+To use such configuration, copy paste the content from C:/ProgramData/.pymodaq/config_daqmx.toml to <user_path>/.pymodaq/config_daqmx.toml and fill it with the configuration of your own experimental setup.
