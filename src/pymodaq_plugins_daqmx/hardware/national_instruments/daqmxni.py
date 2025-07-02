@@ -543,11 +543,8 @@ class NIDAQmx:
             logger.error(traceback.format_exc())
 
     def register_callback(self, callback, event='done', nsamples=1):
-
         if event == 'done':
             self._task.register_done_event(callback)
-        elif event == 'sample':
-            self._task.register_every_n_samples_acquired_into_buffer_event(1, callback)
         elif event == 'Nsamples':
             self._task.register_every_n_samples_acquired_into_buffer_event(nsamples, callback)
 
