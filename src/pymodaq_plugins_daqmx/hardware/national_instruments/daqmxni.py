@@ -1,6 +1,4 @@
-import time
 import traceback
-from enum import Enum
 import numpy as np
 from pymodaq.utils.logger import set_logger, get_module_name
 
@@ -245,7 +243,7 @@ class NIDAQmx:
         devices_info = [dev.name + ': ' + dev.product_type for dev in self.devices]
         logger.info("Detected devices: {}".format(devices_info))
         try:
-            viewer.config_devices = [config["NIDAQ_Devices", dev].get('name') for dev in viewer.config["NIDAQ_Devices"]
+            viewer.config_devices = [config["NIDAQ_Devices", dev].get('name') for dev in config["NIDAQ_Devices"]
                                      if "Mod" not in config["NIDAQ_Devices", dev].get('name')]
             for dev in config["NIDAQ_Devices"]:
                 if not isinstance(config["NIDAQ_Devices", dev], dict):

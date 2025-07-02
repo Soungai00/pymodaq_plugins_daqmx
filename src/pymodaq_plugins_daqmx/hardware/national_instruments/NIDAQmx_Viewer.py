@@ -1,8 +1,7 @@
 import nidaqmx
 import numpy as np
 import traceback
-from qtpy import QtCore
-from .daqmxni import NIDAQmx
+from .daqmxni import NIDAQmx, niDevice
 from pymodaq_plugins_daqmx.hardware.national_instruments.NIDAQmx_base import DAQ_NIDAQmx_base, TerminalConfiguration, \
     UsageTypeAI, ChannelType
 from pymodaq.control_modules.viewer_utility_classes import DAQ_Viewer_base, comon_parameters as viewer_params
@@ -25,9 +24,22 @@ class DAQ_NIDAQmx_Viewer(DAQ_Viewer_base, DAQ_NIDAQmx_base):
         --------
         refresh_hardware
     """
-
+    config_channels: list
+    channels_ai: list
+    controller: NIDAQmx
+    config_devices: list
+    config_modules: list
+    current_device: niDevice
+    live: bool
+    Naverage: int
     live_mode_available = True
-    params = viewer_params + DAQ_NIDAQmx_base.params
+    param_devices = NIDAQmx.get_NIDAQ_devices().device_names
+    params = viewer_params + [
+        {'title': 'Display type:', 'name': 'display', 'type': 'list', 'limits': ['0D', '1D']},
+        {'title': 'Devices :', 'name': 'devices', 'type': 'list', 'limits': param_devices,
+         'value': param_devices[0]
+         },
+        ] + DAQ_NIDAQmx_base.params
 
     def __init__(self, parent=None, params_state=None, control_type="0D"):
         DAQ_Viewer_base.__init__(self, parent, params_state)  # defines settings attribute and various other methods
@@ -40,7 +52,7 @@ class DAQ_NIDAQmx_Viewer(DAQ_Viewer_base, DAQ_NIDAQmx_base):
         if self.control_type == "0D":
             self.settings.child('NIDAQ_type').setLimits([ChannelType.ANALOG_INPUT.name,
                                                          ChannelType.COUNTER_INPUT.name,
-                                                         ChannelType.DIGITAL_INPUT.name])  # analog & digital input + counter
+                                                         ChannelType.DIGITAL_INPUT.name])
         elif self.control_type == "1D":
             self.settings.child('NIDAQ_type').setLimits(ChannelType.ANALOG_INPUT.name)
         elif self.control_type == "Actuator":
@@ -48,6 +60,15 @@ class DAQ_NIDAQmx_Viewer(DAQ_Viewer_base, DAQ_NIDAQmx_base):
 
         self.settings.child('ao_settings').hide()
         self.settings.child('ao_channels').hide()
+
+    def ini_attributes(self):
+        super().ini_attributes()
+        self.channels_ai = []
+        self.config_channels = []
+        self.config_devices = []
+        self.config_modules = []
+        self.live = False
+        self.Naverage = 1
 
     def stop(self):
         """Stop the current grab hardware wise if necessary"""
@@ -221,3 +242,8 @@ class DAQ_NIDAQmx_Viewer(DAQ_Viewer_base, DAQ_NIDAQmx_base):
                                      ])
         self.dte_signal.emit(dte)
         return 0  # mandatory for the NIDAQmx callback
+
+    def close(self):
+        self.live = False
+        self.stop()
+        self.controller.close()
