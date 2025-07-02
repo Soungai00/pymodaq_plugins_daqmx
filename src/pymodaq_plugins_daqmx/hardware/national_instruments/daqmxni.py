@@ -546,17 +546,7 @@ class NIDAQmx:
             self._task.register_every_n_samples_acquired_into_buffer_event(nsamples, callback)
 
     def readCounter(self):
-        #    return 25
-
-        time.sleep(1)
-        self.value = self._task.read()
-
-        #    t = Timer(counting_time,self.read)
-        #    self._task.start()
-        #    t.start()
-        #    time.sleep(2*counting_time)
-        #    print(self.value)
-        return self.value
+        return self._task.read()
 
     @classmethod
     def getAIVoltageRange(cls, device='Dev1'):

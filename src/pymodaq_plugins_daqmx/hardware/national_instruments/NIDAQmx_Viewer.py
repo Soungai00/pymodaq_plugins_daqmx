@@ -200,7 +200,10 @@ class DAQ_NIDAQmx_Viewer(DAQ_Viewer_base, DAQ_NIDAQmx_base):
         if self.controller.task is None:
             self.update_task()
 
-        self.controller.register_callback(self.emit_data, "Nsamples", self.clock_settings.Nsamples)
+        if self.settings['NIDAQ_type'] == ChannelType.ANALOG_INPUT.name:
+            self.controller.register_callback(self.emit_data, "Nsamples", self.clock_settings.Nsamples)
+        elif self.settings['NIDAQ_type'] == ChannelType.COUNTER_INPUT.name:
+            self.timer.start(self.settings['counter_settings', 'counting_time'])
         self.controller.start()
 
     def emit_data(self, task_handle, every_n_samples_event_type, number_of_samples, callback_data):
@@ -221,12 +224,3 @@ class DAQ_NIDAQmx_Viewer(DAQ_Viewer_base, DAQ_NIDAQmx_base):
                                      ])
         self.dte_signal.emit(dte)
         return 0  # mandatory for the NIDAQmx callback
-
-    def counter_done(self):
-        channels_name = [ch.name for ch in self.channels]
-        data_counter = self.readCounter(len(self.channels),
-                                        self.settings['counter_settings', 'counting_time'] * 1e-3)
-        self.data_grabed_signal.emit([DataFromPlugins(name='NI Counter', data=[data_counter / 1e-3], dim='Data0D',
-                                                      labels=channels_name, )])
-        # y_axis=Axis(label='Count Number', units='1/s'))])
-        self.task.StopTask()

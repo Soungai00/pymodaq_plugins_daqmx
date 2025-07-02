@@ -323,7 +323,9 @@ class DAQ_NIDAQmx_base:
                 self.settings.child('ai_channels').hide()
                 self.settings.child('ao_channels').hide()
                 self.settings.child('ao_settings').hide()
+                self.settings.child('counter_settings').show()
                 self.settings.child('counter_settings', 'ci_channels').show()
+                self.settings.child('counter_settings', 'co_channels').hide()
                 self.settings.child('do_channels').hide()
                 self.settings.child('di_channels').hide()
 
@@ -332,7 +334,9 @@ class DAQ_NIDAQmx_base:
                 self.settings.child('ai_channels').hide()
                 self.settings.child('ao_channels').hide()
                 self.settings.child('ao_settings').hide()
+                self.settings.child('counter_settings').show()
                 self.settings.child('counter_settings', 'co_channels').show()
+                self.settings.child('counter_settings', 'ci_channels').hide()
                 self.settings.child('do_channels').hide()
                 self.settings.child('di_channels').hide()
 
