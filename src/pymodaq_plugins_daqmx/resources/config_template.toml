@@ -7,41 +7,52 @@ title = "Configuration entry for a NIDAQmx device"
 name = ""
 product = ""
 
-[NIDAQ_Devices.DEVICE02_Example]
-title = "Configuration entry for a NIDAQmx device"
-name = "cDAQ1"
-product = "cDAQ-9174"
-
 [NIDAQ_Devices.DEVICE01.MODULE01]
 title = "A module plugged in the NIDAQmx device"
 name = ""
 product = ""
 
-[NIDAQ_Devices.DEVICE01.MODULE02_Example]
-title = "A module plugged in a NIDAQmx device"
+[NIDAQ_Devices.DEVICE02_Example]
+title = "Example of configuration entry for a NIDAQmx device"
+name = "cDAQ1"
+product = "cDAQ-9174"
+
+[NIDAQ_Devices.DEVICE02_Example.MODULE01]
+title = "Example of module plugged in a NIDAQmx device for current measurement"
+name = "cDAQMod1"
+product = "NI 9208"
+
+[NIDAQ_Devices.DEVICE02_Example.MODULE02]
+title = "Example of module plugged in a NIDAQmx device for voltage measurement"
 name = "cDAQMod1"
 product = "NI 9211"
 
-[NIDAQ_Devices.DEVICE01.MODULE01.ai]
+[NIDAQ_Devices.DEVICE02_Example.MODULE03]
+title = "Example of module plugged in a NIDAQmx device for thermocouple measurement"
+name = "cDAQMod1"
+product = "NI 9205"
 
-[NIDAQ_Devices.DEVICE01.MODULE01.ai.ai_current_Example]
-info = "Replace ai_current_Example by the channel id such as ai02"
+[NIDAQ_Devices.DEVICE02_Example.MODULE01.ai]
+[NIDAQ_Devices.DEVICE02_Example.MODULE01.ai.ai00]
+info = "Example of AI current channel"
 source = 'ANALOG_INPUT'
 analog_type = 'CURRENT'
 value_min = 0
 value_max = 1
 termination = "RSE"
 
-[NIDAQ_Devices.DEVICE01.MODULE01.ai.ai_voltage_Example]
-info = "Replace ai_voltage_Example by the channel id such as ai02"
+[NIDAQ_Devices.DEVICE02_Example.MODULE02.ai]
+[NIDAQ_Devices.DEVICE02_Example.MODULE02.ai.ai01]
+info = "Example of AI voltage channel"
 source = 'ANALOG_INPUT'
 analog_type = 'VOLTAGE'
 value_min = -10
 value_max = 10
 termination = "RSE"
 
-[NIDAQ_Devices.DEVICE01.MODULE01.ai.ai_thrmcpl_Example]
-info = "Replace ai_thrmcpl_Example by the channel id such as ai02"
+[NIDAQ_Devices.DEVICE02_Example.MODULE03.ai]
+[NIDAQ_Devices.DEVICE02_Example.MODULE03.ai.ai02]
+info = "Example of AI thermocouple channel"
 source = 'ANALOG_INPUT'
 analog_type = 'TEMPERATURE_THERMOCOUPLE'
 thermo_type = "K"

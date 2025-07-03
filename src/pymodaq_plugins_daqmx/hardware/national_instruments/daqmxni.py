@@ -263,8 +263,6 @@ class NIDAQmx:
                 for mod in config["NIDAQ_Devices", dev]:
                     if not isinstance(config["NIDAQ_Devices", dev, mod], dict):
                         continue
-                    elif 'Example' in mod:
-                        continue
                     try:
                         module_name = config["NIDAQ_Devices", dev, mod].get('name')
                         module_product = config["NIDAQ_Devices", dev, mod].get('product')
@@ -280,8 +278,6 @@ class NIDAQmx:
                         if src == "ai":
                             ai = config["NIDAQ_Devices", dev, mod, src]
                             for ch in ai.keys():
-                                if 'Example' in ch:
-                                    continue
                                 name = module_name + "/" + str(ch)
                                 source = ChannelType[ai[ch].get("source")]
                                 analog_type = UsageTypeAI[ai[ch].get("analog_type")]
