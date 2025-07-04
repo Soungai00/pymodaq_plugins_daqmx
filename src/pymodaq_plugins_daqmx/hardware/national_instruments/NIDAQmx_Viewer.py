@@ -35,7 +35,6 @@ class DAQ_NIDAQmx_Viewer(DAQ_Viewer_base, DAQ_NIDAQmx_base):
     live_mode_available = True
     param_devices = NIDAQmx.get_NIDAQ_devices().device_names
     params = viewer_params + [
-        {'title': 'Display type:', 'name': 'display', 'type': 'list', 'limits': ['0D', '1D']},
         {'title': 'Devices :', 'name': 'devices', 'type': 'list', 'limits': param_devices,
          'value': param_devices[0]
          },
@@ -48,15 +47,13 @@ class DAQ_NIDAQmx_Viewer(DAQ_Viewer_base, DAQ_NIDAQmx_base):
         self.current_device = None
         self.Naverage = None
         self.live = False
-        self.control_type = control_type  # could be "0D", "1D" or "Actuator"
+        self.control_type = control_type  # could be "0D", "1D"
         if self.control_type == "0D":
             self.settings.child('NIDAQ_type').setLimits([ChannelType.ANALOG_INPUT.name,
                                                          ChannelType.COUNTER_INPUT.name,
                                                          ChannelType.DIGITAL_INPUT.name])
         elif self.control_type == "1D":
-            self.settings.child('NIDAQ_type').setLimits(ChannelType.ANALOG_INPUT.name)
-        elif self.control_type == "Actuator":
-            self.settings.child('NIDAQ_type').setLimits(ChannelType.ANALOG_OUTPUT.name, ChannelType.COUNTER_OUTPUT.name)
+            self.settings.child('NIDAQ_type').setLimits([ChannelType.ANALOG_INPUT.name])
 
         self.settings.child('ao_settings').hide()
         self.settings.child('ao_channels').hide()
@@ -179,7 +176,7 @@ class DAQ_NIDAQmx_Viewer(DAQ_Viewer_base, DAQ_NIDAQmx_base):
 
             info = "Plugin Initialized"
             initialized = True
-            logger.info("Detector 0D initialized")
+            logger.info("Detector {} initialized".format(self.control_type))
             return info, initialized
 
         except Exception as e:
@@ -226,22 +223,8 @@ class DAQ_NIDAQmx_Viewer(DAQ_Viewer_base, DAQ_NIDAQmx_base):
         self.controller.start()
 
     def emit_data(self, task_handle, every_n_samples_event_type, number_of_samples, callback_data):
-        channels_names = [ch.name for ch in self.channels]
-        data_from_task = self.controller.task.read(self.settings['nsamplestoread'], timeout=20.0)
-        if self.control_type == "0D":
-            if not len(self.controller.task.channels.channel_names) != 1:
-                data_dfp = [np.array(data_from_task)]
-            else:
-                data_dfp = list(map(np.array, data_from_task))
-            dte = DataToExport(name='NIDAQmx',
-                               data=[DataFromPlugins(name='NI Analog Input',
-                                                     data=data_dfp,
-                                                     dim=f'Data{self.settings.child("display").value()}',
-                                                     labels=channels_names
-                                                     ),
-                                     ])
-        self.dte_signal.emit(dte)
-        return 0  # mandatory for the NIDAQmx callback
+        """Data emission to reimplement in the viewer"""
+        raise NotImplementedError
 
     def close(self):
         self.live = False
