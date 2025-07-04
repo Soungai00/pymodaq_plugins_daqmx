@@ -252,7 +252,7 @@ class NIDAQmx:
                     continue
                 try:
                     device_name = config["NIDAQ_Devices", dev].get('name')
-                    if not device_name == current_device.name:
+                    if device_name not in current_device.name:
                         continue
                     device_product = config["NIDAQ_Devices", dev].get('product')
                     device = niDevice(device_name)
