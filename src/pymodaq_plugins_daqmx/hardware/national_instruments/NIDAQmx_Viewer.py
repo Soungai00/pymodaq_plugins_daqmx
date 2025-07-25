@@ -64,16 +64,35 @@ class DAQ_NIDAQmx_Viewer(DAQ_Viewer_base, DAQ_NIDAQmx_base):
         self.live = False
         self.Naverage = 1
 
-    def stop(self):
-        """Stop the current grab hardware wise if necessary"""
+    def ini_detector(self, controller=None):
+        """
+            Initialisation procedure of the detector.
+
+            See Also
+            --------
+            daq_utils.ThreadCommand
+        """
         try:
-            DAQ_NIDAQmx_base.stop(self)
-            self.live = False
-            logger.info("Acquisition stopped.")
-        except Exception:
-            pass
-        self.emit_status(ThreadCommand('Update_Status', ['Acquisition stopped.']))
-        return ''
+            if self.is_master:
+                self.controller = NIDAQmx()
+            else:
+                self.controller = controller
+            self.controller.device = nidaqmx.system.Device(self.settings["devices"])
+
+            # actions to perform in order to set properly the settings tree options
+            self.commit_settings(self.settings.child('NIDAQ_type'))
+
+            info = "Plugin Initialized"
+            initialized = True
+            logger.info("Detector {} initialized".format(self.control_type))
+            return info, initialized
+
+        except Exception as e:
+            logger.info(traceback.format_exc())
+            self.emit_status(ThreadCommand('Update_Status', [str(e), 'log']))
+            info = str(e)
+            initialized = False
+            return info, initialized
 
     def commit_settings(self, param):
         """
