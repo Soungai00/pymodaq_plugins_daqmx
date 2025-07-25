@@ -238,8 +238,6 @@ class NIDAQmx:
         and send the nidaqmx a sequence which set up each channel.
         """
         logger.info("********** CONFIGURATION SEQUENCE INITIALIZED **********")
-        devices_info = [dev.name + ': ' + dev.product_type for dev in self.devices]
-        logger.info("Detected devices: {}".format(devices_info))
         try:
             viewer.config_devices = [config["NIDAQ_Devices", dev].get('name') for dev in config["NIDAQ_Devices"]
                                      if "Mod" not in config["NIDAQ_Devices", dev].get('name')]
@@ -263,6 +261,8 @@ class NIDAQmx:
                         continue
                     try:
                         module_name = config["NIDAQ_Devices", dev, mod].get('name')
+                        if current_device.name not in module_name:
+                            continue
                         module_product = config["NIDAQ_Devices", dev, mod].get('product')
                         module = niDevice(module_name)
                         assert module in self.devices and module.product_type == module_product, module.name

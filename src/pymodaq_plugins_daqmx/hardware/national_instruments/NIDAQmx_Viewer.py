@@ -105,53 +105,57 @@ class DAQ_NIDAQmx_Viewer(DAQ_Viewer_base, DAQ_NIDAQmx_base):
                 except:
                     pass
             elif param.name() == 'load_config':
-                self.controller.configuration_sequence(self, self.current_device)
+                self.controller.configuration_sequence(self, self.controller.device)
                 self.settings.child('load_config').hide()
-                for ch in self.config_channels:
-                    if self.settings.child("devices").value() in ch.name:
-                        self.settings.child('ai_channels').addNew(ch.name)
-                        param = [a for a in self.settings.child('ai_channels').childs if a.opts['title'] == ch.name][0]
-                        param.child("voltage_settings").show(ch.analog_type == UsageTypeAI.VOLTAGE)
-                        param.child("current_settings").show(ch.analog_type == UsageTypeAI.CURRENT)
-                        param.child("thermoc_settings").show(ch.analog_type == UsageTypeAI.TEMPERATURE_THERMOCOUPLE)
-                        match ch.analog_type:
-                            case UsageTypeAI.VOLTAGE:
-                                self.settings.child("ai_channels", param.opts['name'], "ai_type").setValue("VOLTAGE")
-                                self.settings.child("ai_channels", param.opts['name'], "voltage_settings",
-                                                    "volt_min").setValue(
-                                    ch.value_min)
-                                self.settings.child("ai_channels", param.opts['name'], "voltage_settings",
-                                                    "volt_max").setValue(
-                                    ch.value_max)
-                                self.settings.child("ai_channels", param.opts['name'], "termination").setValue(
-                                    ch.termination.name)
-                            case UsageTypeAI.CURRENT:
-                                self.settings.child("ai_channels", param.opts['name'], "ai_type").setValue("CURRENT")
-                                self.settings.child("ai_channels", param.opts['name'], "current_settings",
-                                                    "curr_min").setValue(
-                                    ch.value_min)
-                                self.settings.child("ai_channels", param.opts['name'], "current_settings",
-                                                    "curr_max").setValue(
-                                    ch.value_max)
-                                self.settings.child("ai_channels", param.opts['name'], "termination").setValue(
-                                    ch.termination.name)
-                            case UsageTypeAI.TEMPERATURE_THERMOCOUPLE:
-                                self.settings.child("ai_channels", param.opts['name'], "ai_type").setValue(
-                                    "TEMPERATURE_THERMOCOUPLE")
-                                self.settings.child("ai_channels",
-                                                    param.opts['name'],
-                                                    "thermoc_settings",
-                                                    "thermoc_type").setValue(ch.thermo_type.name)
-                                self.settings.child("ai_channels",
-                                                    param.opts['name'],
-                                                    "thermoc_settings",
-                                                    "T_min").setValue(ch.value_min)
-                                self.settings.child("ai_channels",
-                                                    param.opts['name'],
-                                                    "thermoc_settings",
-                                                    "T_max").setValue(ch.value_max)
-                                self.settings.child("ai_channels", param.opts['name'], "termination").setValue(
-                                    TerminalConfiguration.DEFAULT.name)
+                config_ai_channels = [ch for ch in self.config_channels if ch.source == ChannelType.ANALOG_INPUT]
+                for ch in config_ai_channels:  # Browse configuration analog channels
+                    self.settings.child('ai_channels').addNew(ch.name)
+                    ch_par = [a for a in self.settings.child('ai_channels').childs if a.opts['title'] == ch.name][0]
+                    ch_par.child("voltage_settings").show(ch.analog_type == UsageTypeAI.VOLTAGE)
+                    ch_par.child("current_settings").show(ch.analog_type == UsageTypeAI.CURRENT)
+                    ch_par.child("thermoc_settings").show(ch.analog_type == UsageTypeAI.TEMPERATURE_THERMOCOUPLE)
+                    match ch.analog_type:
+                        case UsageTypeAI.VOLTAGE:
+                            self.settings.child("ai_channels", ch_par.opts['name'], "ai_type").setValue("VOLTAGE")
+                            self.settings.child("ai_channels", ch_par.opts['name'], "voltage_settings",
+                                                "volt_min").setValue(
+                                ch.value_min)
+                            self.settings.child("ai_channels", ch_par.opts['name'], "voltage_settings",
+                                                "volt_max").setValue(
+                                ch.value_max)
+                            self.settings.child("ai_channels", ch_par.opts['name'], "termination").setValue(
+                                ch.termination.name)
+                        case UsageTypeAI.CURRENT:
+                            self.settings.child("ai_channels", ch_par.opts['name'], "ai_type").setValue("CURRENT")
+                            self.settings.child("ai_channels", ch_par.opts['name'], "current_settings",
+                                                "curr_min").setValue(
+                                ch.value_min)
+                            self.settings.child("ai_channels", ch_par.opts['name'], "current_settings",
+                                                "curr_max").setValue(
+                                ch.value_max)
+                            self.settings.child("ai_channels", ch_par.opts['name'], "termination").setValue(
+                                ch.termination.name)
+                        case UsageTypeAI.TEMPERATURE_THERMOCOUPLE:
+                            self.settings.child("ai_channels", ch_par.opts['name'], "ai_type").setValue(
+                                "TEMPERATURE_THERMOCOUPLE")
+                            self.settings.child("ai_channels",
+                                                ch_par.opts['name'],
+                                                "thermoc_settings",
+                                                "thermoc_type").setValue(ch.thermo_type.name)
+                            self.settings.child("ai_channels",
+                                                ch_par.opts['name'],
+                                                "thermoc_settings",
+                                                "T_min").setValue(ch.value_min)
+                            self.settings.child("ai_channels",
+                                                ch_par.opts['name'],
+                                                "thermoc_settings",
+                                                "T_max").setValue(ch.value_max)
+                            self.settings.child("ai_channels", ch_par.opts['name'], "termination").setValue(
+                                TerminalConfiguration.DEFAULT.name)
+                self.channels = self.get_channels_from_settings()
+                self.set_max_frequency()  # Set the acquisition frequency to the device maximum frequency
+            self.channels = self.get_channels_from_settings()
+            self.get_max_frequency()  # Set the frequency 'max' option to the device maximum frequency and display it
 
     def ini_detector(self, controller=None):
         """

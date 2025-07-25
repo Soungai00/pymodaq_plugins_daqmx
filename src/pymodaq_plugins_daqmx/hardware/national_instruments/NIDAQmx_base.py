@@ -224,8 +224,9 @@ class DAQ_NIDAQmx_base:
     params = [{'title': 'Refresh hardware:', 'name': 'refresh_hardware', 'type': 'bool', 'value': False},
               {'title': 'Signal type:', 'name': 'NIDAQ_type', 'type': 'list',
                'limits': [Ds.name for Ds in ChannelType]},
-              {'title': 'Load configuration', 'name': 'load_config', 'type': 'bool', 'value': False, 'readonly': False},
-              {'title': 'NSamples To Read', 'name': 'nsamplestoread', 'type': 'int', 'value': 10, 'default': 10,
+              {'title': 'Plugin config:', 'name': 'load_config', 'type': 'bool_push', 'value': False,
+               'readonly': False, 'label': 'Load Config'},
+              {'title': 'NSamples To Read:', 'name': 'nsamplestoread', 'type': 'int', 'value': 10, 'default': 10,
                'min': 1},
               {'title': 'AO Settings:', 'name': 'ao_settings', 'type': 'group', 'children': [
                   {'title': 'Waveform:', 'name': 'waveform', 'type': 'list', 'value': 'DC',
