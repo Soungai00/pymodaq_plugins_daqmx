@@ -223,8 +223,31 @@ class DAQ_NIDAQmx_Viewer(DAQ_Viewer_base, DAQ_NIDAQmx_base):
         self.controller.start()
 
     def emit_data(self, task_handle, every_n_samples_event_type, number_of_samples, callback_data):
-        """Data emission to reimplement in the viewer"""
-        raise NotImplementedError
+        channels_names = [ch.name for ch in self.channels]
+        data_from_task = self.controller.task.read(self.settings['nsamplestoread'], timeout=20.0)
+        if not len(self.controller.task.channels.channel_names) != 1:
+            data_dfp = [np.array(data_from_task)]
+        else:
+            data_dfp = list(map(np.array, data_from_task))
+        self.dte_signal.emit(DataToExport(name='NIDAQmx',
+                                          data=[DataFromPlugins(name='Data from ' + self.current_device.name,
+                                                                data=data_dfp,
+                                                                dim=f'Data{self.control_type}',
+                                                                labels=channels_names,
+                                                                ),
+                                                ]))
+        return 0  # mandatory for the NIDAQmx callback
+
+    def stop(self):
+        """Stop the current grab hardware wise if necessary"""
+        try:
+            DAQ_NIDAQmx_base.stop(self)
+            self.live = False
+            logger.info("Acquisition stopped.")
+        except Exception:
+            pass
+        self.emit_status(ThreadCommand('Update_Status', ['Acquisition stopped.']))
+        return ''
 
     def close(self):
         self.live = False
