@@ -323,8 +323,12 @@ class NIDAQmx:
         return niDevice(device).ao_max_rate
 
     @classmethod
-    def getAIMaxRate(cls, device):
+    def getAIMaxSingleRate(cls, device):
         return niDevice(device).ai_max_single_chan_rate
+
+    @classmethod
+    def getAIMaxMultiRate(cls, device):
+        return niDevice(device).ai_max_multi_chan_rate
 
     @classmethod
     def isAnalogTriggeringSupported(cls, device):

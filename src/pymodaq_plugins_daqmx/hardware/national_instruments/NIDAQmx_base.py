@@ -242,9 +242,10 @@ class DAQ_NIDAQmx_base:
               ]},
               {'title': 'Clock Settings:', 'name': 'clock_settings', 'type': 'group', 'children': [
                   {'title': 'Nsamples:', 'name': 'Nsamples', 'type': 'int', 'value': 10, 'default': 10, 'min': 1},
+                  {'title': 'Max frequency supported:', 'name': 'max_freq', 'type': 'float', 'value': 10.,
+                   'readonly': True, 'suffix': 'Hz'},
                   {'title': 'Frequency:', 'name': 'frequency', 'type': 'float', 'value': 10., 'default': 10.,
-                   'min': 0., 'suffix': 'Hz'},
-                  {'title': 'Repetition?:', 'name': 'repetition', 'type': 'bool', 'value': False, },
+                   'min': 0., 'max': 10e5, 'suffix': 'Hz'},
               ]
                },
               {'title': 'AI Channels:', 'name': 'ai_channels', 'type': 'groupai',

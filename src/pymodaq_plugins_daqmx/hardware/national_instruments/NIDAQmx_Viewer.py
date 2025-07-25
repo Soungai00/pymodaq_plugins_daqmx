@@ -93,17 +93,16 @@ class DAQ_NIDAQmx_Viewer(DAQ_Viewer_base, DAQ_NIDAQmx_base):
         if param.parent() is not None:
             if param.parent().name() == 'ai_channels':
                 device = param.opts['title'].split('/')[0]
-                self.settings.child('clock_settings', 'frequency').setOpts(max=self.controller.getAIMaxRate(device))
-
+                self.settings.child('clock_settings', 'frequency').setOpts(max=self.controller.getAIMaxSingleRate(device))
                 volt_ranges = self.controller.getAIVoltageRange(device)
-                curr_ranges = self.controller.getAICurrentRange(device)
-                try:
+                if volt_ranges:
                     param.child('voltage_settings', 'volt_min').setValue(volt_ranges[0])
                     param.child('voltage_settings', 'volt_max').setValue(volt_ranges[1])
+                curr_ranges = self.controller.getAICurrentRange(device)
+                if curr_ranges:
                     param.child('current_settings', 'curr_min').setValue(curr_ranges[0])
                     param.child('current_settings', 'curr_max').setValue(curr_ranges[1])
-                except:
-                    pass
+
             elif param.name() == 'load_config':
                 self.controller.configuration_sequence(self, self.controller.device)
                 self.settings.child('load_config').hide()
@@ -157,35 +156,35 @@ class DAQ_NIDAQmx_Viewer(DAQ_Viewer_base, DAQ_NIDAQmx_base):
             self.channels = self.get_channels_from_settings()
             self.get_max_frequency()  # Set the frequency 'max' option to the device maximum frequency and display it
 
-    def ini_detector(self, controller=None):
-        """
-            Initialisation procedure of the detector.
-
-            See Also
-            --------
-            daq_utils.ThreadCommand
-        """
+    def get_max_frequency(self):
+        # Destined to be removed when set_max_frequency will work correctly
         try:
-            if self.is_master:
-                self.controller = NIDAQmx()
+            if self.settings.child('ai_channels').children() or self.settings.child('di_channels').children():
+                max_freq = self.controller.getAIMaxSingleRate(self.controller.device.name)/len(self.channels)
+                self.settings.child('clock_settings', 'max_freq').setValue(max_freq)
             else:
-                self.controller = controller
-            self.current_device = nidaqmx.system.Device(self.settings["devices"])
+                max_freq = self.controller.getAIMaxSingleRate(self.controller.device.name)
+                self.settings.child('clock_settings', 'max_freq').setValue(max_freq)
+        except:
+            pass
 
-            # actions to perform in order to set properly the settings tree options
-            self.commit_settings(self.settings.child('NIDAQ_type'))
-
-            info = "Plugin Initialized"
-            initialized = True
-            logger.info("Detector {} initialized".format(self.control_type))
-            return info, initialized
-
-        except Exception as e:
-            logger.info(traceback.format_exc())
-            self.emit_status(ThreadCommand('Update_Status', [str(e), 'log']))
-            info = str(e)
-            initialized = False
-            return info, initialized
+    def set_max_frequency(self):
+        # Opts 'max' get the right value but doesn't update the viewer which keep as max the initial max value
+        try:
+            if self.settings.child('ai_channels').children() or self.settings.child('di_channels').children():
+                max_freq = self.controller.getAIMaxSingleRate(self.controller.device.name) / len(self.channels)
+                self.settings.child('clock_settings', 'frequency').setOpts(max=max_freq)
+                self.settings.child('clock_settings', 'frequency').emitStateChanged('max', max_freq)
+                self.settings.child('clock_settings', 'frequency')._emitOptionsChanged(
+                    self.settings.child('clock_settings', 'frequency'), {'max': max_freq})
+            else:
+                max_freq = self.controller.getAIMaxSingleRate(self.controller.device.name)
+                self.settings.child('clock_settings', 'frequency').setOpts(max=max_freq)
+                self.settings.child('clock_settings', 'frequency').emitStateChanged('max', max_freq)
+                self.settings.child('clock_settings', 'frequency')._emitOptionsChanged(
+                    self.settings.child('clock_settings', 'frequency'), {'max': max_freq})
+        except:
+            pass
 
     def grab_data(self, Naverage=1, **kwargs):
         """
