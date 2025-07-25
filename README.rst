@@ -35,24 +35,25 @@ Below is the list of instruments included in this plugin
 Actuators
 +++++++++
 
-* **DAQmx_MultipleScannerControl**: Control of piezo scanners with an analog output.
+* **NIDAQmx**: General generation (voltage / current) with National Instrument materials
 
 Viewer0D
 ++++++++
 
-* **DAQmx_PLcounter**: Single photon counting
 * **NIDAQmx**: General measurement with National Instrument materials
 
 NIDAQmx Viewer
 ++++++++++++++
 
 This viewer aims at being very general and allows measurement with as much different NI modules as possible.
-At this point (06/2025), it supports Analog measurement of currents, voltages and temperatures from thermocouples.
+At this point (07/2025), it supports Analog measurement of currents, voltages and temperatures from thermocouples.
 
 Tests have been running with the following devices:
     * Chassis NI cDAQ-9174 & NI USB-9162
     * NI modules 9211 & 9205
 
-Acquisition channels can ge generated directly running the viewer, but it is also possible to load channels from the configuration file config_daqmx.toml clicking on "load configuration" in the parameter tree
+Acquisition channels can ge generated directly running the viewer, but it is also possible to load channels from the configuration file config_daqmx.toml clicking on "load configuration" in the parameter tree.
 
 To use such configuration, copy paste the content from C:/ProgramData/.pymodaq/config_daqmx.toml to <user_path>/.pymodaq/config_daqmx.toml and fill it with the configuration of your own experimental setup.
+
+It is recommended to create a preset with one detector for each module used (using the current device parameter). It allows to control the frequency for each module and make the "Load config" button only catch channels corresponding to the selected module.
