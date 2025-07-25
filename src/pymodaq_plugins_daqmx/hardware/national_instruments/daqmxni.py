@@ -146,10 +146,8 @@ class NIDAQmx:
         self._task = None
         self.update_NIDAQ_devices()
         self.update_NIDAQ_channels()
-        self.c_callback = None  # A qui servent ces callback ??
-        self.callback_data = None
-        self.is_scalar = True
-        self.write_buffer = np.array([0.])  # ou est utilisé ce buffer??
+        devices_info = [dev.name + ': ' + dev.product_type for dev in self.devices]
+        logger.info("Detected devices: {}".format(devices_info))
 
     @property
     def task(self):
@@ -161,7 +159,7 @@ class NIDAQmx:
 
     @device.setter
     def device(self, device):
-        if device not in self.devices.device_names:
+        if device not in self.devices:
             raise IOError(f'your device: {device} is not known or connected')
         self._device = device
 
@@ -318,7 +316,6 @@ class NIDAQmx:
             logger.error("Configuration entries <{}> does not match the hardware ".format(err))
         except Exception as err:
             logger.info("Configuration sequence error, verify if your config matches the hardware: {}".format(err))
-            pass
         logger.info("       ********** CONFIGURATION SEQUENCE SUCCESSFULLY ENDED **********")
 
     @classmethod
@@ -363,7 +360,6 @@ class NIDAQmx:
                     self._task.close()
 
                 self._task = None
-                self.c_callback = None
 
             self._task = niTask()
             logger.info("TASK: {}".format(self._task))

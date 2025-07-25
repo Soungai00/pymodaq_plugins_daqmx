@@ -25,7 +25,6 @@ class DAQ_NIDAQmx_Viewer(DAQ_Viewer_base, DAQ_NIDAQmx_base):
         refresh_hardware
     """
     config_channels: list
-    channels_ai: list
     controller: NIDAQmx
     config_devices: list
     config_modules: list
@@ -44,7 +43,6 @@ class DAQ_NIDAQmx_Viewer(DAQ_Viewer_base, DAQ_NIDAQmx_base):
         DAQ_Viewer_base.__init__(self, parent, params_state)  # defines settings attribute and various other methods
         DAQ_NIDAQmx_base.__init__(self)
 
-        self.current_device = None
         self.Naverage = None
         self.live = False
         self.control_type = control_type  # could be "0D", "1D"
@@ -60,7 +58,6 @@ class DAQ_NIDAQmx_Viewer(DAQ_Viewer_base, DAQ_NIDAQmx_base):
 
     def ini_attributes(self):
         super().ini_attributes()
-        self.channels_ai = []
         self.config_channels = []
         self.config_devices = []
         self.config_modules = []
