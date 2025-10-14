@@ -28,7 +28,6 @@ class DAQ_NIDAQmx_Viewer(DAQ_Viewer_base, DAQ_NIDAQmx_base):
     controller: NIDAQmx
     config_devices: list
     config_modules: list
-    current_device: niDevice
     live: bool
     Naverage: int
     live_mode_available = True
@@ -121,7 +120,8 @@ class DAQ_NIDAQmx_Viewer(DAQ_Viewer_base, DAQ_NIDAQmx_base):
                 if curr_ranges:
                     param.child('current_settings', 'curr_min').setValue(curr_ranges[0])
                     param.child('current_settings', 'curr_max').setValue(curr_ranges[1])
-
+            elif param.name() == 'devices':
+                self.controller.device = self.settings.child('devices')
             elif param.name() == 'load_config':
                 self.controller.configuration_sequence(self, self.controller.device)
                 self.settings.child('load_config').hide()
@@ -249,7 +249,7 @@ class DAQ_NIDAQmx_Viewer(DAQ_Viewer_base, DAQ_NIDAQmx_base):
         else:
             data_dfp = list(map(np.array, data_from_task))
         self.dte_signal.emit(DataToExport(name='NIDAQmx',
-                                          data=[DataFromPlugins(name='Data from ' + self.current_device.name,
+                                          data=[DataFromPlugins(name='Data from ' + self.controller.device.name,
                                                                 data=data_dfp,
                                                                 dim=f'Data{self.control_type}',
                                                                 labels=channels_names,
