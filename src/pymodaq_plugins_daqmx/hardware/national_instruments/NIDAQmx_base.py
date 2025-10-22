@@ -5,7 +5,7 @@ from pymodaq_gui.parameter import Parameter
 from pymodaq_gui.parameter.pymodaq_ptypes import registerParameterType, GroupParameter
 from pymodaq_plugins_daqmx.hardware.national_instruments.daqmxni import NIDAQmx, Edge, ChannelType, ClockSettings, \
     AIChannel, AIThermoChannel, AOChannel, CIChannel, COChannel, DOChannel, DIChannel, UsageTypeAI, UsageTypeAO, \
-    ThermocoupleType, TerminalConfiguration, TriggerSettings
+    ThermocoupleType, TerminalConfiguration, TriggerSettings, RTDType, TemperatureUnits, ResistanceConfiguration, ExcitationSource
 
 
 logger = set_logger(get_module_name(__file__))
@@ -41,6 +41,32 @@ class ScalableGroupAI(GroupParameter):
                   {'title': 'Temp. Min:', 'name': 'T_min', 'type': 'float', 'value': 0, 'suffix': '°C'},
                   {'title': 'Temp. Max:', 'name': 'T_max', 'type': 'float', 'value': 50, 'suffix': '°C'},
               ]},
+              {'title': 'TEMPERATURE_RTD:', 'name': 'rtd_settings', 'type': 'group', 'visible': False,
+               'children': [
+                   {'title': 'Max. value in:', 'name': 'max_value_in', 'type': 'float', 'value': '0'},
+                   {'title': 'Max. value out:', 'name': 'max_value_out', 'type': 'float', 'value': '0'},
+                   {'title': 'Temp. unit:', 'name': 'temp_unit', 'type': 'list',
+                    'limits': [TemperatureUnits.DEG_C.name, TemperatureUnits.DEG_F.name],
+                    'value': TemperatureUnits.DEG_C.name},
+                   {'title': 'r0', 'name': 'r0', 'type': 'float', 'value': 100, 'suffix': 'Ω'},
+                   {'title': 'RTD type:', 'name': 'rtd_type', 'type': 'list',
+                    'limits': [rtd_type.name for rtd_type in RTDType], 'value': RTDType.PT_3750.name},
+                   {'title': 'Callendar-Van Dusen coefficients:', 'name': 'c-vd_coeff.', 'type': 'group',
+                    'visible': False, 'children': [
+                       # These coefficients are supposed to used in a °C Callendar-Van Dusen equation,
+                       # cf. https://www.ni.com/docs/fr-FR/bundle/ni-daqmx/page/callendarvandusen.html (Oct. 2025)
+                       {'title': 'A', 'name': 'a_c-vd_coeff', 'type': 'float', 'suffix': 'Ω/°C'},
+                       {'title': 'B', 'name': 'b_c-vd_coeff', 'type': 'float', 'suffix': 'Ω/(°C²)'},
+                       {'title': 'C', 'name': 'c_c-vd_coeff', 'type': 'float', 'suffix': 'Ω/(°C⁴)'},
+                   ]},
+                   {'title': 'Resistance config.', 'name': 'resistance_config', 'type': 'list',
+                    'limits': [rc.name for rc in ResistanceConfiguration],
+                    'value': ResistanceConfiguration.FOUR_WIRE.name},
+                   {'title' : 'Curr. excit. src', 'name': 'current_excit_src', 'type': 'list',
+                    'limits' : [excit_src.name for excit_src in ExcitationSource],
+                    'value': ExcitationSource.INTERNAL.name},
+                   {'title': 'Iex value', 'name': 'i_ex_value', 'type': 'float', 'value': 0.00100, 'suffix': 'A'},
+               ]},
               {'title': 'Termination:', 'name': 'termination', 'type': 'list',
                'limits': [Te.name for Te in TerminalConfiguration]},
               ]
@@ -369,6 +395,10 @@ class DAQ_NIDAQmx_base:
             param.parent().child('voltage_settings').show(param.value() == UsageTypeAI.VOLTAGE.name)
             param.parent().child('current_settings').show(param.value() == UsageTypeAI.CURRENT.name)
             param.parent().child('thermoc_settings').show(param.value() == UsageTypeAI.TEMPERATURE_THERMOCOUPLE.name)
+            param.parent().child('rtd_settings').show(param.value() == UsageTypeAI.TEMPERATURE_RTD.name)
+
+        elif param.name() == 'rtd_type':
+            param.parent().child('c-vd_coeff.').show(param.value() == RTDType.CUSTOM.name)
 
         elif param.name() == 'ao_type':
             param.parent().child('voltage_settings').show(param.value() == UsageTypeAI.VOLTAGE.name)
@@ -412,6 +442,13 @@ class DAQ_NIDAQmx_base:
                                               value_max=channel['current_settings', 'curr_max'],
                                               termination=TerminalConfiguration[channel['termination']], ))
                 elif analog_type == UsageTypeAI.TEMPERATURE_THERMOCOUPLE:
+                    channels.append(AIThermoChannel(name=channel.opts['title'],
+                                                    source=source, analog_type=analog_type,
+                                                    value_min=channel['thermoc_settings', 'T_min'],
+                                                    value_max=channel['thermoc_settings', 'T_max'],
+                                                    thermo_type=ThermocoupleType[
+                                                        channel['thermoc_settings', 'thermoc_type']], ))
+                elif analog_type == UsageTypeAI.TEMPERATURE_RTD:
                     channels.append(AIThermoChannel(name=channel.opts['title'],
                                                     source=source, analog_type=analog_type,
                                                     value_min=channel['thermoc_settings', 'T_min'],

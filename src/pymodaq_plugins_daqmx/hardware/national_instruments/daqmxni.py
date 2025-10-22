@@ -2,10 +2,11 @@ import traceback
 import numpy as np
 from pymodaq.utils.logger import set_logger, get_module_name
 
-from nidaqmx.constants import AcquisitionType, VoltageUnits, CurrentUnits, CurrentShuntResistorLocation, \
+from nidaqmx.constants import (AcquisitionType, VoltageUnits, CurrentUnits, CurrentShuntResistorLocation, \
                                 TemperatureUnits, CJCSource, CountDirection, Level, FrequencyUnits, TimeUnits, \
                                 LineGrouping, UsageTypeAI, UsageTypeAO, UsageTypeCI, UsageTypeCO, Edge, \
-                                TerminalConfiguration, ThermocoupleType, ChannelType
+                                TerminalConfiguration, ThermocoupleType, ChannelType, RTDType, TemperatureUnits,
+                               ResistanceConfiguration, ExcitationSource)
 
 from nidaqmx.system import System as niSystem
 from nidaqmx.system.device import Device as niDevice
@@ -89,6 +90,13 @@ class AIThermoChannel(AIChannel):
         super().__init__(**kwargs)
         assert thermo_type in ThermocoupleType
         self.thermo_type = thermo_type
+
+# class AI_RTD_Channel(AIChannel):
+#     def __init__(self, rtd_type=RTDType.Pt_3750, **kwargs):
+#         super().__init__(**kwargs)
+#         assert rtd_type in RTDType
+#         self.rtd_type = rtd_type
+# à compléter !!!!!!
 
 
 class AOChannel(AChannel):
@@ -403,6 +411,8 @@ class NIDAQmx:
                                                                        CJCSource.BUILT_IN,
                                                                        0.,
                                                                        "")
+                        # elif channel.analog_type == UsageTypeAI.TEMPERATURE_RTD:
+                        #     self._task.ai_channels.add_ai
                     except DaqError as e:
                         err_code = e.error_code
                     if err_code:
