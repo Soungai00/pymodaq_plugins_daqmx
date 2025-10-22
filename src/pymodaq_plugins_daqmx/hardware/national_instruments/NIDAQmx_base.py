@@ -5,7 +5,7 @@ from pymodaq_gui.parameter import Parameter
 from pymodaq_gui.parameter.pymodaq_ptypes import registerParameterType, GroupParameter
 from pymodaq_plugins_daqmx.hardware.national_instruments.daqmxni import NIDAQmx, Edge, ChannelType, ClockSettings, \
     AIChannel, AIThermoChannel, AOChannel, CIChannel, COChannel, DOChannel, DIChannel, UsageTypeAI, UsageTypeAO, \
-    ThermocoupleType, TerminalConfiguration, TriggerSettings, RTDType, TemperatureUnits, ResistanceConfiguration, ExcitationSource
+    ThermocoupleType, TerminalConfiguration, TriggerSettings, RTDType, TemperatureUnits, ResistanceConfiguration, ExcitationSource , AI_RTD_Channel
 
 
 logger = set_logger(get_module_name(__file__))
@@ -43,8 +43,8 @@ class ScalableGroupAI(GroupParameter):
               ]},
               {'title': 'TEMPERATURE_RTD:', 'name': 'rtd_settings', 'type': 'group', 'visible': False,
                'children': [
-                   {'title': 'Max. value in:', 'name': 'max_value_in', 'type': 'float', 'value': '0'},
-                   {'title': 'Max. value out:', 'name': 'max_value_out', 'type': 'float', 'value': '0'},
+                   {'title': 'Min. value in:', 'name': 'min_value_in', 'type': 'float', 'value': '0'},
+                   {'title': 'Max. value in:', 'name': 'max_value_in', 'type': 'float', 'value': '100'},
                    {'title': 'Temp. unit:', 'name': 'temp_unit', 'type': 'list',
                     'limits': [TemperatureUnits.DEG_C.name, TemperatureUnits.DEG_F.name],
                     'value': TemperatureUnits.DEG_C.name},
@@ -449,12 +449,19 @@ class DAQ_NIDAQmx_base:
                                                     thermo_type=ThermocoupleType[
                                                         channel['thermoc_settings', 'thermoc_type']], ))
                 elif analog_type == UsageTypeAI.TEMPERATURE_RTD:
-                    channels.append(AIThermoChannel(name=channel.opts['title'],
+                    channels.append(AI_RTD_Channel(name=channel.opts['title'],
                                                     source=source, analog_type=analog_type,
-                                                    value_min=channel['thermoc_settings', 'T_min'],
-                                                    value_max=channel['thermoc_settings', 'T_max'],
-                                                    thermo_type=ThermocoupleType[
-                                                        channel['thermoc_settings', 'thermoc_type']], ))
+                                                    value_min=channel['rtd_settings', 'min_value_in'],
+                                                    value_max=channel['rtd_settings', 'max_value_in'],
+                                                   units=TemperatureUnits[channel['rtd_settings', 'temp_unit']],
+                                                   rtd_type=RTDType[channel['rtd_settings', 'rtd_type']],
+                                                   resistance_config=
+                                                   ResistanceConfiguration[channel['rtd_settings', 'resistance_config']],
+                                                   current_excit_source=
+                                                   ExcitationSource[channel['rtd_settings', 'current_excit_src']],
+                                                   current_excit_val=channel['rtd_settings', 'i_ex_value'],
+                                                   r_0=channel['rtd_settings', 'r0'],
+                                                   ))
 
         elif self.settings['NIDAQ_type'] == ChannelType.ANALOG_OUTPUT.name:  # analog output
             source = ChannelType.ANALOG_OUTPUT

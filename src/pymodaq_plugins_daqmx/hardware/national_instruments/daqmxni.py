@@ -91,12 +91,22 @@ class AIThermoChannel(AIChannel):
         assert thermo_type in ThermocoupleType
         self.thermo_type = thermo_type
 
-# class AI_RTD_Channel(AIChannel):
-#     def __init__(self, rtd_type=RTDType.Pt_3750, **kwargs):
-#         super().__init__(**kwargs)
-#         assert rtd_type in RTDType
-#         self.rtd_type = rtd_type
-# à compléter !!!!!!
+class AI_RTD_Channel(AIChannel):
+    def __init__(self, units = TemperatureUnits.DEG_C, resistance_config=ResistanceConfiguration.TWO_WIRE, r_0=100, rtd_type=RTDType.PT_3750,
+                 current_excit_source = ExcitationSource.INTERNAL, current_excit_val = 0.01, **kwargs):
+        super().__init__(**kwargs)
+        assert units in TemperatureUnits
+        self.units = units
+        assert resistance_config in ResistanceConfiguration
+        self.resistance_config = resistance_config
+        assert type(r_0) in [float, int]
+        self.r_0 = r_0
+        assert rtd_type in RTDType
+        self.rtd_type = rtd_type
+        assert current_excit_source in ExcitationSource
+        self.current_excit_source = current_excit_source
+        assert type(current_excit_val) in [float, int]
+        self.current_excit_val = current_excit_val
 
 
 class AOChannel(AChannel):
@@ -411,8 +421,17 @@ class NIDAQmx:
                                                                        CJCSource.BUILT_IN,
                                                                        0.,
                                                                        "")
-                        # elif channel.analog_type == UsageTypeAI.TEMPERATURE_RTD:
-                        #     self._task.ai_channels.add_ai
+                        elif channel.analog_type == UsageTypeAI.TEMPERATURE_RTD:
+                            self._task.ai_channels.add_ai_rtd_chan(channel.name,
+                                                                       "",
+                                                                       channel.value_min,
+                                                                       channel.value_max,
+                                                                       units=channel.units,
+                                                                       rtd_type=channel.rtd_type ,
+                                                                       resistance_config=channel.resistance_config,
+                                                                   current_excit_source=channel.current_excit_source,
+                                                                   current_excit_val=channel.current_excit_val,
+                                                                       r_0=channel.r_0)
                     except DaqError as e:
                         err_code = e.error_code
                     if err_code:
