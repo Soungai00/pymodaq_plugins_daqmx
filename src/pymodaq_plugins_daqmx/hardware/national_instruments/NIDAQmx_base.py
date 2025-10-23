@@ -53,7 +53,7 @@ class ScalableGroupAI(GroupParameter):
                     'limits': [rtd_type.name for rtd_type in RTDType], 'value': RTDType.PT_3750.name},
                    {'title': 'Callendar-Van Dusen coefficients:', 'name': 'c-vd_coeff.', 'type': 'group',
                     'visible': False, 'children': [
-                       # These coefficients are supposed to used in a °C Callendar-Van Dusen equation,
+                       # These coefficients are supposed to be used in a Callendar-Van Dusen equation in °C,
                        # cf. https://www.ni.com/docs/fr-FR/bundle/ni-daqmx/page/callendarvandusen.html (Oct. 2025)
                        {'title': 'A', 'name': 'a_c-vd_coeff', 'type': 'float', 'suffix': 'Ω/°C'},
                        {'title': 'B', 'name': 'b_c-vd_coeff', 'type': 'float', 'suffix': 'Ω/(°C²)'},

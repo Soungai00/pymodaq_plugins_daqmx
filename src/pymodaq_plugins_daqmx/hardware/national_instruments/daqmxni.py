@@ -92,7 +92,7 @@ class AIThermoChannel(AIChannel):
         self.thermo_type = thermo_type
 
 class AI_RTD_Channel(AIChannel):
-    def __init__(self, units = TemperatureUnits.DEG_C, resistance_config=ResistanceConfiguration.TWO_WIRE, r_0=100, rtd_type=RTDType.PT_3750,
+    def __init__(self, units = TemperatureUnits.DEG_C, resistance_config=ResistanceConfiguration.TWO_WIRE, r_0=float(100), rtd_type=RTDType.PT_3750,
                  current_excit_source = ExcitationSource.INTERNAL, current_excit_val = 0.01, **kwargs):
         super().__init__(**kwargs)
         assert units in TemperatureUnits
@@ -326,6 +326,26 @@ class NIDAQmx:
                                                                    value_min=float(ai[ch].get("value_min")),
                                                                    value_max=float(ai[ch].get("value_max")),
                                                                    thermo_type=th,
+                                                                   ))
+                                elif analog_type == UsageTypeAI.TEMPERATURE_RTD:
+                                    units = TemperatureUnits[ai[ch].get("units")]
+                                    resistance_config = ResistanceConfiguration[ai[ch].get("resistance_config")]
+                                    r_0 = float(ai[ch].get("r_0"))
+                                    rtd_type = RTDType[ai[ch].get("rtd_type")]
+                                    current_excit_source = ExcitationSource[ai[ch].get("current_excit_source")]
+                                    current_excit_val = float(ai[ch].get("current_excit_val"))
+                                    viewer.config_channels.append(AI_RTD_Channel
+                                                                  (name=name,
+                                                                   source=source,
+                                                                   analog_type=analog_type,
+                                                                   value_min=float(ai[ch].get("value_min")),
+                                                                   value_max=float(ai[ch].get("value_max")),
+                                                                   units=units,
+                                                                   resistance_config=resistance_config,
+                                                                   r_0=r_0,
+                                                                   rtd_type=rtd_type,
+                                                                   current_excit_source=current_excit_source,
+                                                                   current_excit_val=current_excit_val,
                                                                    ))
             logger.info("Devices from config: {}".format(viewer.config_devices))
             logger.info("Modules from config: {}".format(viewer.config_modules))

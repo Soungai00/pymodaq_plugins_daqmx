@@ -132,6 +132,7 @@ class DAQ_NIDAQmx_Viewer(DAQ_Viewer_base, DAQ_NIDAQmx_base):
                     ch_par.child("voltage_settings").show(ch.analog_type == UsageTypeAI.VOLTAGE)
                     ch_par.child("current_settings").show(ch.analog_type == UsageTypeAI.CURRENT)
                     ch_par.child("thermoc_settings").show(ch.analog_type == UsageTypeAI.TEMPERATURE_THERMOCOUPLE)
+                    ch_par.child("rtd_settings").show(ch.analog_type == UsageTypeAI.TEMPERATURE_RTD)
                     match ch.analog_type:
                         case UsageTypeAI.VOLTAGE:
                             self.settings.child("ai_channels", ch_par.opts['name'], "ai_type").setValue("VOLTAGE")
@@ -168,6 +169,43 @@ class DAQ_NIDAQmx_Viewer(DAQ_Viewer_base, DAQ_NIDAQmx_base):
                                                 ch_par.opts['name'],
                                                 "thermoc_settings",
                                                 "T_max").setValue(ch.value_max)
+                            self.settings.child("ai_channels", ch_par.opts['name'], "termination").setValue(
+                                TerminalConfiguration.DEFAULT.name)
+                        case UsageTypeAI.TEMPERATURE_RTD:
+                            self.settings.child("ai_channels", ch_par.opts['name'], "ai_type").setValue(
+                                "TEMPERATURE_RTD")
+                            self.settings.child("ai_channels",
+                                                ch_par.opts['name'],
+                                                "rtd_settings",
+                                                "min_value_in").setValue(ch.value_min)
+                            self.settings.child("ai_channels",
+                                                ch_par.opts['name'],
+                                                "rtd_settings",
+                                                "max_value_in").setValue(ch.value_max)
+                            self.settings.child("ai_channels",
+                                                ch_par.opts['name'],
+                                                "rtd_settings",
+                                                "temp_unit").setValue(ch.units.name)
+                            self.settings.child("ai_channels",
+                                                ch_par.opts['name'],
+                                                "rtd_settings",
+                                                "resistance_config").setValue(ch.resistance_config.name)
+                            self.settings.child("ai_channels",
+                                                ch_par.opts['name'],
+                                                "rtd_settings",
+                                                "r0").setValue(ch.r_0.name)
+                            self.settings.child("ai_channels",
+                                                ch_par.opts['name'],
+                                                "rtd_settings",
+                                                "rtd_type").setValue(ch.rtd_type.name)
+                            self.settings.child("ai_channels",
+                                                ch_par.opts['name'],
+                                                "rtd_settings",
+                                                "current_excit_src").setValue(ch.current_excit_source.name)
+                            self.settings.child("ai_channels",
+                                                ch_par.opts['name'],
+                                                "rtd_settings",
+                                                "i_ex_value").setValue(ch.current_excit_val.name)
                             self.settings.child("ai_channels", ch_par.opts['name'], "termination").setValue(
                                 TerminalConfiguration.DEFAULT.name)
                 self.channels = self.get_channels_from_settings()
