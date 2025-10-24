@@ -37,7 +37,7 @@ Actuators
 
 * **NIDAQmx**: General generation (voltage / current) with National Instrument materials
 
-Viewer0D
+Viewer1D
 ++++++++
 
 * **NIDAQmx**: General measurement with National Instrument materials
