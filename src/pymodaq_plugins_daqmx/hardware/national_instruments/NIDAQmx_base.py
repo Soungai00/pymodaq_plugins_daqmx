@@ -55,9 +55,9 @@ class ScalableGroupAI(GroupParameter):
                     'visible': False, 'children': [
                        # These coefficients are supposed to be used in a Callendar-Van Dusen equation in °C,
                        # cf. https://www.ni.com/docs/fr-FR/bundle/ni-daqmx/page/callendarvandusen.html (Oct. 2025)
-                       {'title': 'A', 'name': 'a_c-vd_coeff', 'type': 'float', 'suffix': 'Ω/°C'},
-                       {'title': 'B', 'name': 'b_c-vd_coeff', 'type': 'float', 'suffix': 'Ω/(°C²)'},
-                       {'title': 'C', 'name': 'c_c-vd_coeff', 'type': 'float', 'suffix': 'Ω/(°C⁴)'},
+                       {'title': 'A', 'name': 'a_c-vd_coeff', 'type': 'float', 'suffix': '°C⁻¹'},
+                       {'title': 'B', 'name': 'b_c-vd_coeff', 'type': 'float', 'suffix': '°C⁻²'},
+                       {'title': 'C', 'name': 'c_c-vd_coeff', 'type': 'float', 'suffix': '°C⁻⁴'},
                    ]},
                    {'title': 'Resistance config.', 'name': 'resistance_config', 'type': 'list',
                     'limits': [rc.name for rc in ResistanceConfiguration],
@@ -455,6 +455,9 @@ class DAQ_NIDAQmx_base:
                                                     value_max=channel['rtd_settings', 'max_value_in'],
                                                    units=TemperatureUnits[channel['rtd_settings', 'temp_unit']],
                                                    rtd_type=RTDType[channel['rtd_settings', 'rtd_type']],
+                                                   a_cvd_coeff=channel['rtd_settings', 'c-vd_coeff.', 'a_c-vd_coeff'],
+                                                   b_cvd_coeff=channel['rtd_settings', 'c-vd_coeff.', 'b_c-vd_coeff'],
+                                                   c_cvd_coeff=channel['rtd_settings', 'c-vd_coeff.', 'c_c-vd_coeff'],
                                                    resistance_config=
                                                    ResistanceConfiguration[channel['rtd_settings', 'resistance_config']],
                                                    current_excit_source=

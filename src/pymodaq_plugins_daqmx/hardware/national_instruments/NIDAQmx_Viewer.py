@@ -3,7 +3,7 @@ import numpy as np
 import traceback
 from .daqmxni import NIDAQmx, niDevice
 from pymodaq_plugins_daqmx.hardware.national_instruments.NIDAQmx_base import DAQ_NIDAQmx_base, TerminalConfiguration, \
-    UsageTypeAI, ChannelType
+    UsageTypeAI, ChannelType,RTDType
 from pymodaq.control_modules.viewer_utility_classes import DAQ_Viewer_base, comon_parameters as viewer_params
 from pymodaq.utils.daq_utils import ThreadCommand
 from pymodaq.utils.data import DataFromPlugins, DataToExport
@@ -172,6 +172,7 @@ class DAQ_NIDAQmx_Viewer(DAQ_Viewer_base, DAQ_NIDAQmx_base):
                             self.settings.child("ai_channels", ch_par.opts['name'], "termination").setValue(
                                 TerminalConfiguration.DEFAULT.name)
                         case UsageTypeAI.TEMPERATURE_RTD:
+                            ch_par.child("rtd_settings", "c-vd_coeff.").show(ch.rtd_type == RTDType.CUSTOM)
                             self.settings.child("ai_channels", ch_par.opts['name'], "ai_type").setValue(
                                 "TEMPERATURE_RTD")
                             self.settings.child("ai_channels",
@@ -193,11 +194,23 @@ class DAQ_NIDAQmx_Viewer(DAQ_Viewer_base, DAQ_NIDAQmx_base):
                             self.settings.child("ai_channels",
                                                 ch_par.opts['name'],
                                                 "rtd_settings",
-                                                "r0").setValue(ch.r_0.name)
+                                                "r0").setValue(ch.r_0)
                             self.settings.child("ai_channels",
                                                 ch_par.opts['name'],
                                                 "rtd_settings",
                                                 "rtd_type").setValue(ch.rtd_type.name)
+                            self.settings.child("ai_channels",
+                                                ch_par.opts['name'],
+                                                "rtd_settings", "c-vd_coeff.",
+                                                "a_c-vd_coeff").setValue(ch.a_cvd_coeff)
+                            self.settings.child("ai_channels",
+                                                ch_par.opts['name'],
+                                                "rtd_settings", "c-vd_coeff.",
+                                                "b_c-vd_coeff").setValue(ch.b_cvd_coeff)
+                            self.settings.child("ai_channels",
+                                                ch_par.opts['name'],
+                                                "rtd_settings", "c-vd_coeff.",
+                                                "c_c-vd_coeff").setValue(ch.c_cvd_coeff)
                             self.settings.child("ai_channels",
                                                 ch_par.opts['name'],
                                                 "rtd_settings",
@@ -205,7 +218,7 @@ class DAQ_NIDAQmx_Viewer(DAQ_Viewer_base, DAQ_NIDAQmx_base):
                             self.settings.child("ai_channels",
                                                 ch_par.opts['name'],
                                                 "rtd_settings",
-                                                "i_ex_value").setValue(ch.current_excit_val.name)
+                                                "i_ex_value").setValue(ch.current_excit_val)
                             self.settings.child("ai_channels", ch_par.opts['name'], "termination").setValue(
                                 TerminalConfiguration.DEFAULT.name)
                 self.channels = self.get_channels_from_settings()
