@@ -500,6 +500,7 @@ class NIDAQmx:
                                                               clock_settings.edge,
                                                               mode,
                                                               clock_settings.Nsamples)
+                        self._task.in_stream.input_buf_size = int(clock_settings.frequency)*10
                     elif isinstance(clock_settings, ChangeDetectionSettings):
                         self._task.timing.cfg_change_detection_timing(clock_settings.rising_channel,
                                                                       clock_settings.falling_channel,
