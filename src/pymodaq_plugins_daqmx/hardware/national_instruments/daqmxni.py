@@ -2,10 +2,11 @@ import traceback
 import numpy as np
 from pymodaq.utils.logger import set_logger, get_module_name
 
-from nidaqmx.constants import AcquisitionType, VoltageUnits, CurrentUnits, CurrentShuntResistorLocation, \
+from nidaqmx.constants import (AcquisitionType, VoltageUnits, CurrentUnits, CurrentShuntResistorLocation, \
                                 TemperatureUnits, CJCSource, CountDirection, Level, FrequencyUnits, TimeUnits, \
                                 LineGrouping, UsageTypeAI, UsageTypeAO, UsageTypeCI, UsageTypeCO, Edge, \
-                                TerminalConfiguration, ThermocoupleType, ChannelType
+                                TerminalConfiguration, ThermocoupleType, ChannelType, RTDType, TemperatureUnits,
+                               ResistanceConfiguration, ExcitationSource)
 
 from nidaqmx.system import System as niSystem
 from nidaqmx.system.device import Device as niDevice
@@ -89,6 +90,30 @@ class AIThermoChannel(AIChannel):
         super().__init__(**kwargs)
         assert thermo_type in ThermocoupleType
         self.thermo_type = thermo_type
+
+class AI_RTD_Channel(AIChannel):
+    def __init__(self, units = TemperatureUnits.DEG_C, resistance_config=ResistanceConfiguration.TWO_WIRE, r_0=float(100),
+                 rtd_type=RTDType.PT_3750, a_cvd_coeff=float(0), b_cvd_coeff=float(0), c_cvd_coeff=float(0),
+                    current_excit_source = ExcitationSource.INTERNAL, current_excit_val = 0.01, **kwargs):
+        super().__init__(**kwargs)
+        assert units in TemperatureUnits
+        self.units = units
+        assert resistance_config in ResistanceConfiguration
+        self.resistance_config = resistance_config
+        assert type(r_0) in [float, int]
+        self.r_0 = r_0
+        assert rtd_type in RTDType
+        self.rtd_type = rtd_type
+        assert type(a_cvd_coeff) in [float, int]
+        self.a_cvd_coeff = a_cvd_coeff
+        assert type(b_cvd_coeff) in [float, int]
+        self.b_cvd_coeff = b_cvd_coeff
+        assert type(c_cvd_coeff) in [float, int]
+        self.c_cvd_coeff = c_cvd_coeff
+        assert current_excit_source in ExcitationSource
+        self.current_excit_source = current_excit_source
+        assert type(current_excit_val) in [float, int]
+        self.current_excit_val = current_excit_val
 
 
 class AOChannel(AChannel):
@@ -309,6 +334,32 @@ class NIDAQmx:
                                                                    value_max=float(ai[ch].get("value_max")),
                                                                    thermo_type=th,
                                                                    ))
+                                elif analog_type == UsageTypeAI.TEMPERATURE_RTD:
+                                    units = TemperatureUnits[ai[ch].get("units")]
+                                    resistance_config = ResistanceConfiguration[ai[ch].get("resistance_config")]
+                                    r_0 = float(ai[ch].get("r_0"))
+                                    rtd_type = RTDType[ai[ch].get("rtd_type")]
+                                    a_cvd_coeff = float(ai[ch].get("a_cvd_coeff"))
+                                    b_cvd_coeff = float(ai[ch].get("b_cvd_coeff"))
+                                    c_cvd_coeff = float(ai[ch].get("c_cvd_coeff"))
+                                    current_excit_source = ExcitationSource[ai[ch].get("current_excit_source")]
+                                    current_excit_val = float(ai[ch].get("current_excit_val"))
+                                    viewer.config_channels.append(AI_RTD_Channel
+                                                                  (name=name,
+                                                                   source=source,
+                                                                   analog_type=analog_type,
+                                                                   value_min=float(ai[ch].get("value_min")),
+                                                                   value_max=float(ai[ch].get("value_max")),
+                                                                   units=units,
+                                                                   resistance_config=resistance_config,
+                                                                   r_0=r_0,
+                                                                   rtd_type=rtd_type,
+                                                                   a_cvd_coeff=a_cvd_coeff,
+                                                                    b_cvd_coeff=b_cvd_coeff,
+                                                                    c_cvd_coeff=c_cvd_coeff,
+                                                                   current_excit_source=current_excit_source,
+                                                                   current_excit_val=current_excit_val,
+                                                                   ))
             logger.info("Devices from config: {}".format(viewer.config_devices))
             logger.info("Modules from config: {}".format(viewer.config_modules))
             logger.info("Channels from config: {}".format([ch.name for ch in viewer.config_channels]))
@@ -403,6 +454,22 @@ class NIDAQmx:
                                                                        CJCSource.BUILT_IN,
                                                                        0.,
                                                                        "")
+                        elif channel.analog_type == UsageTypeAI.TEMPERATURE_RTD:
+                            ai_rtd_chan = self._task.ai_channels.add_ai_rtd_chan(channel.name,
+                                                                       "",
+                                                                       channel.value_min,
+                                                                       channel.value_max,
+                                                                       units=channel.units,
+                                                                       rtd_type=channel.rtd_type,
+                                                                       resistance_config=channel.resistance_config,
+                                                                   current_excit_source=channel.current_excit_source,
+                                                                   current_excit_val=channel.current_excit_val,
+                                                                       r_0=channel.r_0)
+                            if ai_rtd_chan.ai_rtd_type == RTDType["CUSTOM"]:
+                                # configuration of callendar-van dusen coefficients
+                                ai_rtd_chan.ai_rtd_a = channel.a_cvd_coeff
+                                ai_rtd_chan.ai_rtd_b = channel.b_cvd_coeff
+                                ai_rtd_chan.ai_rtd_c = channel.c_cvd_coeff
                     except DaqError as e:
                         err_code = e.error_code
                     if err_code:

@@ -27,6 +27,7 @@ Contributors
 * Amelie Jarnac
 * Aurore Finco
 * Sébastien Guerrero  (sebastien.guerrero@insa-lyon.fr)
+* Cyril Auclair (cyril.auclair@insa-lyon.fr)
 
 Instruments
 ===========
@@ -46,11 +47,11 @@ NIDAQmx Viewer
 ++++++++++++++
 
 This viewer aims at being very general and allows measurement with as much different NI modules as possible.
-At this point (07/2025), it supports Analog measurement of currents, voltages and temperatures from thermocouples.
+At this point (10/2025), it supports Analog measurement of currents, voltages and temperatures from thermocouples and RTD.
 
 Tests have been running with the following devices:
     * Chassis NI cDAQ-9174 & NI USB-9162
-    * NI modules 9211 & 9205
+    * NI modules 9211, 9205 & 9217 (for RTD measurements)
 
 Acquisition channels can ge generated directly running the viewer, but it is also possible to load channels from the configuration file config_daqmx.toml clicking on "load configuration" in the parameter tree.
 
