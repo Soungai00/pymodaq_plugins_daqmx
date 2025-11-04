@@ -377,6 +377,13 @@ class DAQ_NIDAQmx_base:
         elif param.name() == 'trigger_channel':
             param.parent().child('level').show('PF' not in param.opts['title'])
 
+        if self.control_type == "0D":
+            self.settings.child('nsamplestoread').hide()
+            self.settings.child('clock_settings', 'Nsamples').setValue(1)
+            self.settings.child('clock_settings', 'Nsamples').setOpts(readonly=True)
+            self.settings.child('clock_settings', 'frequency').hide()
+            self.settings.child('clock_settings', 'max_freq').hide()
+
     def update_task(self):
         self.channels = self.get_channels_from_settings()
         self.clock_settings = ClockSettings(frequency=self.settings['clock_settings', 'frequency'],
