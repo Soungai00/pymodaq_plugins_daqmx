@@ -120,7 +120,7 @@ class DAQ_NIDAQmx_Viewer(DAQ_Viewer_base, DAQ_NIDAQmx_base):
                     param.child('current_settings', 'curr_min').setValue(curr_ranges[0])
                     param.child('current_settings', 'curr_max').setValue(curr_ranges[1])
             elif param.name() == 'devices':
-                self.controller.device = self.settings.child('devices')
+                self.controller.device = nidaqmx.system.Device(self.settings["devices"])
             elif param.name() == 'load_config':
                 self.controller.configuration_sequence(self, self.controller.device)
                 self.settings.child('load_config').hide()
