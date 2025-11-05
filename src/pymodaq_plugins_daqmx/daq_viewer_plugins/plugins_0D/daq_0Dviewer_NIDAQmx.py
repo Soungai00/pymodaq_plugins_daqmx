@@ -2,10 +2,10 @@ import numpy as np
 from pymodaq_data import DataToExport
 from pymodaq.utils.data import DataFromPlugins
 from pymodaq_plugins_daqmx.hardware.national_instruments.NIDAQmx_Viewer import DAQ_NIDAQmx_Viewer
-from pymodaq_plugins_daqmx.hardware.national_instruments.daqmxni import Edge, ChannelType, ClockSettings, \
-    TriggerSettings
+from pymodaq_plugins_daqmx.hardware.national_instruments.daqmxni import ChannelType
 from pymodaq.utils.logger import set_logger, get_module_name
 logger = set_logger(get_module_name(__file__))
+
 
 class DAQ_0DViewer_NIDAQmx(DAQ_NIDAQmx_Viewer):
     """

@@ -1,12 +1,9 @@
-import nidaqmx
-import numpy as np
 import traceback
-from .daqmxni import NIDAQmx, niDevice
-from pymodaq_plugins_daqmx.hardware.national_instruments.NIDAQmx_base import DAQ_NIDAQmx_base, TerminalConfiguration, \
-    UsageTypeAI, ChannelType,RTDType
+from pymodaq_plugins_daqmx.hardware.national_instruments.daqmxni import niDevice
+from pymodaq_plugins_daqmx.hardware.national_instruments.NIDAQmx_base import NIDAQmx, DAQ_NIDAQmx_base, \
+    TerminalConfiguration, UsageTypeAI, ChannelType, RTDType
 from pymodaq.control_modules.viewer_utility_classes import DAQ_Viewer_base, comon_parameters as viewer_params
 from pymodaq.utils.daq_utils import ThreadCommand
-from pymodaq.utils.data import DataFromPlugins, DataToExport
 from pymodaq.utils.logger import set_logger, get_module_name
 logger = set_logger(get_module_name(__file__))
 
@@ -75,7 +72,7 @@ class DAQ_NIDAQmx_Viewer(DAQ_Viewer_base, DAQ_NIDAQmx_base):
                 self.controller = NIDAQmx()
             else:
                 self.controller = controller
-            self.controller.device = nidaqmx.system.Device(self.settings["devices"])
+            self.controller.device = niDevice(self.settings["devices"])
 
             # actions to perform in order to set properly the settings tree options
             self.commit_settings(self.settings.child('NIDAQ_type'))
@@ -120,7 +117,7 @@ class DAQ_NIDAQmx_Viewer(DAQ_Viewer_base, DAQ_NIDAQmx_base):
                     param.child('current_settings', 'curr_min').setValue(curr_ranges[0])
                     param.child('current_settings', 'curr_max').setValue(curr_ranges[1])
             elif param.name() == 'devices':
-                self.controller.device = nidaqmx.system.Device(self.settings["devices"])
+                self.controller.device = niDevice(self.settings["devices"])
             elif param.name() == 'load_config':
                 self.controller.configuration_sequence(self, self.controller.device)
                 self.settings.child('load_config').hide()
