@@ -12,6 +12,7 @@ class DAQ_0DViewer_NIDAQmx(DAQ_NIDAQmx_Viewer):
     Plugin for bufferized 0D data visualization & acquisition with NI modules (plugged in NI cDAQ or NI-USB).
     """
     live_mode_available = False
+    acquisition_state = False
 
     def __init__(self, parent=None, params_state=None):
         super().__init__(parent, params_state, control_type='0D')
@@ -29,18 +30,21 @@ class DAQ_0DViewer_NIDAQmx(DAQ_NIDAQmx_Viewer):
         """
         if self.controller.task is None:
             # In synchronous mode, acquisition rate does not come from clock settings but from each grab
-            self.clock_settings = ClockSettings(frequency=self.settings['clock_settings', 'frequency'],
-                                                Nsamples=self.settings['clock_settings', 'Nsamples'],
-                                                edge=Edge.RISING,
-                                                repetition=False, )
-            self.controller.update_task(self.get_channels_from_settings(), self.clock_settings)
+            self.update_task()
 
         if self.settings['NIDAQ_type'] == ChannelType.COUNTER_INPUT.name:
             self.timer.start(self.settings['counter_settings', 'counting_time'])
 
+        if not self.acquisition_state:
+            self.controller.task.start()
+            self.acquisition_state = True
+
         channels_names = [ch.name for ch in self.channels]
         data_from_task = self.controller.task.read(timeout=20.0)
-        data_dfp = list(map(lambda f: np.array([f]), data_from_task))
+        if isinstance(data_from_task, float):
+            data_dfp = np.array([data_from_task])
+        else:
+            data_dfp = list(map(lambda f: np.array([f]), data_from_task))
         self.dte_signal.emit(DataToExport(name='NIDAQmx',
                                           data=[DataFromPlugins(name='Data from ' + self.controller.device.name,
                                                                 data=data_dfp,
@@ -48,3 +52,15 @@ class DAQ_0DViewer_NIDAQmx(DAQ_NIDAQmx_Viewer):
                                                                 labels=channels_names,
                                                                 ),
                                                 ]))
+
+    def stop(self):
+        """Stop the current grab hardware wise if necessary"""
+        self.acquisition_state = False
+        try:
+            self.controller.task.stop()
+            self.controller.task.close()
+            self.controller._task = None
+        except Exception as e:
+            logger.error(e)
+        finally:
+            DAQ_NIDAQmx_Viewer.stop(self)
