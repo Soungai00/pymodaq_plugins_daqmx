@@ -7,9 +7,9 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = 'pymodaq_plugins_daqmx'
-copyright = '2023, Sébastien Weber, Aurore Finco'
-author = 'Sébastien Weber, Aurore Finco'
-release = '0.3.0'
+copyright = '2025, Sébastien Weber, Aurore Finco, Sébastien Guerrero'
+author = 'Sébastien Weber, Aurore Finco, Sébastien Guerrero'
+release = '1.1.0'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

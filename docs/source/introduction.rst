@@ -8,8 +8,8 @@ NI acquisition and signal generation devices are very versatile instruments, whi
 Installation
 ------------
 
-Of course, you need a working PyMoDAQ installation, see `here <http://pymodaq.cnrs.fr/en/latest/user_folder/installation.html>`_ the installation procedure. You also need to have the NIDAQmx driver on your computer, together with the acquisition device. Use the NI MAX software to test your hardware.
+Of course, you need a working PyMoDAQ installation, see `here <http://pymodaq.cnrs.fr/en/latest/quick_start.html#>`_ the installation procedure. You also need to have the NIDAQmx driver on your computer, together with the acquisition device. Use the NI MAX software to test your hardware.
 
-Then you can install the *pymodaq_plugins_daqmx* module, from the `plugin manager <http://pymodaq.cnrs.fr/en/latest/user_folder/installation.html#plugin-manager>`_ or with ``pip install pymodaq_plugins_daqmx``.
-The interface between the NIDAQmx driver and python (and thus PyMoDAQ) is done by the package `PyDAQmx <https://pythonhosted.org/PyDAQmx/>`_.
+Then you can install the *pymodaq_plugins_daqmx* module, from the `plugin manager <http://pymodaq.cnrs.fr/en/latest/user_folder/plugin_manager.html>`_ or with ``pip install pymodaq_plugins_daqmx``.
+The interface between the NIDAQmx driver and python (and thus PyMoDAQ) is done by the package `NIDAQmx <https://nidaqmx-python.readthedocs.io/en/stable/>`_.
 

@@ -1,12 +1,12 @@
-Using the 1D viewer Nidaqmx
-===========================
+0Dviewer NIDAQmx
+================
 
 This plugin is meant to be used to make measurement and acquire analog data with a NI card. According to the material used, a lot of physical quantity can be detected. Until August 2025, you can measure temperatures, currents or voltages.
 
 .. note::
     Stay aware of the maximum quantity measurable which depends on what can supports your device.
 
-It was tested only with a cDAQ-9174 with modules NI-9205 and NI-9211 devices.
+It was tested with a cDAQ-9174 and a USB-6341 with modules NI-9205, NI-9211 and NI 9217.
 
 Configuration
 -------------
