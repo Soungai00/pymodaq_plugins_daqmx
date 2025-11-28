@@ -32,7 +32,7 @@ class DAQ_NIDAQmx_Actuator(DAQ_Move_base, DAQ_NIDAQmx_base):
                     'limits': ['Master', 'Slave']},
                    {'title': 'Axis:', 'name': 'axis', 'type': 'list', 'limits': stage_names},
 
-               ]}] + actuator_params
+               ]}] + actuator_params()
 
     def __init__(self, parent=None, params_state=None, control_type="Actuator"):
         DAQ_Move_base.__init__(self, parent, params_state)  # defines settings attribute and various other methods
