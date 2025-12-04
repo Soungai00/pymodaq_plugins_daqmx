@@ -30,4 +30,5 @@ Once the task is properly set up, you can start it with the method ``start()`` o
   - ``read(number_of_samples_per_channel)``: direct measurement (such as in the 0Dviewer)
   - ``register_callback(callback, event, nsamples)``: Measurement using the NI card's buffer (such as in the 1Dviewer)
   - ``write(data, auto_start)``
+
 You can also stop the task with the ``stop()`` method.
