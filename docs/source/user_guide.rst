@@ -16,8 +16,7 @@ This user guide will first explain how to use these plugins, and then detail how
    
    user_guide/counter_use
    user_guide/scanner_use
-   user_guide/0Dviewer_use
-   user_guide/1Dviewer_use
+   user_guide/nidaqmx_viewer_use
 
 For any other use, you will need to create your own move or viewer based on this plugin. See the :ref:`create_plugin` guide for a detailed procedure.
    
@@ -29,8 +28,7 @@ The controller object, which is usually the wrapper to your hardware, will alway
 .. toctree::
    :maxdepth: 1
    
-   user_guide/counter_details (deprecated)
-   user_guide/scanner_details (deprecated)
-   user_guide/0Dviewer_details
-   user_guide/1Dviewer_details
+   user_guide/counter_details
+   user_guide/scanner_details
+
 
