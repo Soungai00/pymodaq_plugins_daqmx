@@ -16,11 +16,12 @@ This documentation is written as a tutorial to guide you when setting up your NI
 This plugin is compatible with PymoDAQ 5.
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 4
    :caption: Contents:
 
    introduction
    user_guide
    nidaqmx
+   library
    creating_plugin
    
