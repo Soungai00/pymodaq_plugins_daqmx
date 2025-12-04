@@ -15,16 +15,7 @@ logger = set_logger(get_module_name(__file__))
 class ScalableGroupAI(GroupParameter):
 
     """
-        |
-
-        ================ =============
-        **Attributes**    **Type**
-        *opts*            dictionnary
-        ================ =============
-
-        See Also
-        --------
-        hardware.DAQ_Move_Stage_type
+        Generic parameter items holding Analog Input parameters
     """
 
     params = [{'title': 'AI type:', 'name': 'ai_type', 'type': 'list', 'visible': True, 'limits': [Uai.name for Uai in UsageTypeAI]},
@@ -63,8 +54,8 @@ class ScalableGroupAI(GroupParameter):
                    {'title': 'Resistance config.', 'name': 'resistance_config', 'type': 'list',
                     'limits': [rc.name for rc in ResistanceConfiguration],
                     'value': ResistanceConfiguration.FOUR_WIRE.name},
-                   {'title' : 'Curr. excit. src', 'name': 'current_excit_src', 'type': 'list',
-                    'limits' : [excit_src.name for excit_src in ExcitationSource],
+                   {'title': 'Curr. excit. src', 'name': 'current_excit_src', 'type': 'list',
+                    'limits': [excit_src.name for excit_src in ExcitationSource],
                     'value': ExcitationSource.INTERNAL.name},
                    {'title': 'Iex value', 'name': 'i_ex_value', 'type': 'float', 'value': 0.00100, 'suffix': 'A'},
                ]},
@@ -98,16 +89,7 @@ registerParameterType('groupai', ScalableGroupAI, override=True)
 
 class ScalableGroupAO(GroupParameter):
     """
-        |
-
-        ================ =============
-        **Attributes**    **Type**
-        *opts*            dictionnary
-        ================ =============
-
-        See Also
-        --------
-        hardware.DAQ_Move_Stage_type
+        Generic parameter items holding Analog Output parameters
     """
 
     params = [{'title': 'AO type:', 'name': 'ao_type', 'type': 'list', 'limits': [Uao.name for Uao in UsageTypeAO]},
@@ -147,16 +129,7 @@ registerParameterType('groupao', ScalableGroupAO, override=True)
 
 class ScalableGroupCounter(GroupParameter):
     """
-        |
-
-        ================ =============
-        **Attributes**    **Type**
-        *opts*            dictionnary
-        ================ =============
-
-        See Also
-        --------
-        hardware.DAQ_Move_Stage_type
+        Generic parameter items holding Counter parameters
     """
 
     params = [{'title': 'Edge type:', 'name': 'edge', 'type': 'list', 'limits': [e.name for e in Edge]}, ]
@@ -187,6 +160,7 @@ registerParameterType('groupcounter', ScalableGroupCounter, override=True)
 
 class ScalableGroupDI(GroupParameter):
     """
+        Generic parameter items holding Digital Input parameters
     """
 
     params = []
@@ -216,6 +190,7 @@ registerParameterType('groupdi', ScalableGroupDI, override=True)
 
 class ScalableGroupDO(GroupParameter):
     """
+        Generic parameter items holding Digital Output parameters
     """
 
     params = []
@@ -416,6 +391,9 @@ class DAQ_NIDAQmx_base:
             self.settings.child('clock_settings', 'max_freq').hide()
 
     def update_task(self):
+        """
+            Update task according to channels from settings.
+        """
         self.channels = self.get_channels_from_settings()
         self.clock_settings = ClockSettings(frequency=self.settings['clock_settings', 'frequency'],
                                             Nsamples=self.settings['clock_settings', 'Nsamples'],
@@ -432,6 +410,9 @@ class DAQ_NIDAQmx_base:
             logger.warning("No channels assigned, task not created")
 
     def get_channels_from_settings(self):
+        """
+            Browse the viewer settings to gather all the channels that will be used.
+        """
         channels = []
         if self.settings['NIDAQ_type'] == ChannelType.ANALOG_INPUT.name:  # analog input
             source = ChannelType.ANALOG_INPUT
@@ -513,6 +494,7 @@ class DAQ_NIDAQmx_base:
 
     def stop(self):
         """
+        Stop the acquisition.
         """
         if not not self.timer:
             self.timer.stop()

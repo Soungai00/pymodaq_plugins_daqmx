@@ -223,6 +223,10 @@ class DAQ_NIDAQmx_Viewer(DAQ_Viewer_base, DAQ_NIDAQmx_base):
             self.get_max_frequency()  # Set the frequency 'max' option to the device maximum frequency and display it
 
     def get_max_frequency(self):
+        """
+            Get the maximum frequency according to the material's limits and display the information.
+            This method is destined to be removed once set_max_frequency will work correctly.
+        """
         # Destined to be removed when set_max_frequency will work correctly
         try:
             max_freq = int(self.controller.getAIMaxSingleRate(self.controller.device.name))
@@ -231,6 +235,9 @@ class DAQ_NIDAQmx_Viewer(DAQ_Viewer_base, DAQ_NIDAQmx_base):
             pass
 
     def set_max_frequency(self):
+        """
+            Set the maximum frequency applicable to the frequency parameter according to material's limits.
+        """
         # Opts 'max' get the right value but doesn't update the viewer which keep as max the initial max value
         try:
             max_freq = int(self.controller.getAIMaxSingleRate(self.controller.device.name))
