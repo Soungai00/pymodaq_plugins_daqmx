@@ -9,7 +9,7 @@ logger = set_logger(get_module_name(__file__))
 
 class DAQ_0DViewer_NIDAQmx(DAQ_NIDAQmx_Viewer):
     """
-    Plugin for bufferized 0D data visualization & acquisition with NI modules (plugged in NI cDAQ or NI-USB).
+    Plugin for 0D data visualization & acquisition with NI modules (plugged in NI cDAQ or NI-USB).
     """
     live_mode_available = False
     acquisition_state = False

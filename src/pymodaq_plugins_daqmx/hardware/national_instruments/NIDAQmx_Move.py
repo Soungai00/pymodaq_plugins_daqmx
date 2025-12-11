@@ -95,7 +95,8 @@ class DAQ_NIDAQmx_Actuator(DAQ_Move_base, DAQ_NIDAQmx_base):
         self.status (edict): with initialization status: three fields:
             * info (str)
             * controller (object) initialized controller
-            *initialized: (bool): False if initialization failed otherwise True
+            * initialized: (bool): False if initialization failed otherwise True
+
         """
         try:
             # initialize the stage and its controller status
