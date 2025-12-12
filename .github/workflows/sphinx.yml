@@ -18,6 +18,7 @@ jobs:
       - name: Sphinx build
         run: |
           sphinx-build docs/source docs/build/html
+          cp docs/source/docstring/library.html docs/build/html/library.html
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
