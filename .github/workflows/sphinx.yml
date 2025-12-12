@@ -18,7 +18,11 @@ jobs:
       - name: Sphinx build
         run: |
           sphinx-build docs/source docs/build/html
-          cp docs/source/docstring/library.html docs/build/html/library.html
+          cp docs/source/_static/classdiag.html docs/build/html/classdiag.html
+          cp docs/source/_static/daq_move_plugins.html docs/build/html/daq_move_plugins.html
+          cp docs/source/_static/daq_viewer_plugins.html docs/build/html/daq_viewer_plugins.html
+          cp docs/source/_static/hardware.html docs/build/html/hardware.html
+          cp docs/source/_static/library.html docs/build/html/library.html
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
