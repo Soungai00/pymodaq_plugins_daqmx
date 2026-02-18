@@ -224,6 +224,8 @@ class DAQ_NIDAQmx_base:
     params = [{'title': 'Refresh hardware:', 'name': 'refresh_hardware', 'type': 'bool', 'value': False},
               {'title': 'Signal type:', 'name': 'NIDAQ_type', 'type': 'list',
                'limits': [Ds.name for Ds in ChannelType]},
+              {'title': 'Save plugin config:', 'name': 'save_config', 'type': 'bool_push', 'value': False,
+               'readonly': False, 'label': 'Save Config'},
               {'title': 'Plugin config:', 'name': 'load_config', 'type': 'bool_push', 'value': False,
                'readonly': False, 'label': 'Load Config'},
               {'title': 'NSamples To Read:', 'name': 'nsamplestoread', 'type': 'int', 'value': 10, 'default': 10,
