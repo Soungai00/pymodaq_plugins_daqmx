@@ -8,6 +8,11 @@ from pymodaq.control_modules.viewer_utility_classes import DAQ_Viewer_base, como
 from pymodaq.utils.daq_utils import ThreadCommand
 from pymodaq.utils.data import DataFromPlugins, DataToExport
 from pymodaq.utils.logger import set_logger, get_module_name
+
+from pymodaq_utils import config as utils_config
+from pymodaq_plugins_daqmx import config as daqmx_config
+from pathlib import WindowsPath
+
 logger = set_logger(get_module_name(__file__))
 
 
@@ -172,6 +177,54 @@ class DAQ_NIDAQmx_Viewer(DAQ_Viewer_base, DAQ_NIDAQmx_base):
                                 TerminalConfiguration.DEFAULT.name)
                 self.channels = self.get_channels_from_settings()
                 self.set_max_frequency()  # Set the acquisition frequency to the device maximum frequency
+            elif param.name() == 'save_config' and param.value():
+                self.controller.configuration_backing_up_sequence(self, self.controller.device)
+                config_dict = {}
+                cfs_list = self.get_channels_from_settings()
+                for cfs in cfs_list: # self.get_channels_from_settings():
+                    n = cfs_list.index(cfs)
+                    toml_section_name = "MODULE" + str(n)
+                    config_string_to_write = ""
+                    cfs_config_dict = {}
+                    cfs_name = cfs.name
+                    cfs_source = cfs.source.name
+                    if cfs.source in [ChannelType.ANALOG_INPUT, ChannelType.ANALOG_OUTPUT]:
+                        cfs_analog_type = cfs.analog_type.name
+                        cfs_value_min = cfs.value_min
+                        cfs_value_max = cfs.value_max
+                        config_string_to_write += 'name = "' + str(cfs_name) + '"\n' + "" \
+                                                    'source = "' + str(cfs_source) + '"\n' + "" \
+                                                    'analog_type = "' + str(cfs_analog_type) + '"\n' + "" \
+                                                    'value_min = ' + str(cfs_value_min) + '\n' + "" \
+                                                    'value_max = ' + str(cfs_value_max) + '\n'
+                        cfs_config_dict['name'] = cfs_name
+                        cfs_config_dict['source'] = cfs_source
+                        cfs_config_dict['analog_type'] = cfs_analog_type
+                        cfs_config_dict['value_min'] = cfs_value_min
+                        cfs_config_dict['value_max'] = cfs_value_max
+                        if cfs.source == ChannelType.ANALOG_INPUT:
+                            cfs_termination = cfs.termination.name
+                            match cfs.analog_type:
+                                case UsageTypeAI.VOLTAGE:
+                                    cfs_info = "Example of AI voltage channel"
+                                    config_string_to_write = config_string_to_write + ' termination = "' + str(cfs_termination) + '"\n'
+                                    cfs_config_dict['termination'] = cfs_termination
+                                case UsageTypeAI.TEMPERATURE_THERMOCOUPLE:
+                                    cfs_info = "Example of AI thermocouple channel"
+                                    cfs_thermo_type = cfs.thermo_type.name
+                                    cfs_config_dict['thermo_type'] = cfs_thermo_type
+                                    config_string_to_write += 'thermo_type = "' + str(cfs_thermo_type) + '"\n'
+                                # The other AI type cases are still to implement
+                        else:
+                            pass # to complete
+                    config_string_to_write = 'info = "' + cfs_info + '"\n' + config_string_to_write
+                    cfs_config_dict['info'] = cfs_info
+                    print(config_string_to_write + "\n\n")
+                    config_dict[toml_section_name] = cfs_config_dict
+                param.setToDefault()
+                print("config_dict = ", config_dict)
+                config_file_path = daqmx_config.config_path
+                utils_config.create_toml_from_dict(config_dict, config_file_path)
             self.channels = self.get_channels_from_settings()
             self.get_max_frequency()  # Set the frequency 'max' option to the device maximum frequency and display it
 

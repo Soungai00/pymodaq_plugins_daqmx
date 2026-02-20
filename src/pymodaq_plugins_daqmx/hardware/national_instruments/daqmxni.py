@@ -318,6 +318,93 @@ class NIDAQmx:
             logger.info("Configuration sequence error, verify if your config matches the hardware: {}".format(err))
         logger.info("       ********** CONFIGURATION SEQUENCE SUCCESSFULLY ENDED **********")
 
+    def configuration_backing_up_sequence(self, viewer, current_device):
+        """Save in user the configuration file the configuration of each  / modules / channels as giver in the parameters menu
+
+        Write in the .toml file to get the hardware configuration as configured in the nidaqmx.
+        """
+        logger.info("********** CONFIGURATION BACKING UP SEQUENCE INITIALIZED **********")
+        print("viewer.config_modules : " + str(viewer.config_modules))
+        # try:
+        #     viewer.config_devices = [config["NIDAQ_Devices", dev].get('name') for dev in config["NIDAQ_Devices"]
+        #                              if "Mod" not in config["NIDAQ_Devices", dev].get('name')]
+        #     for dev in config["NIDAQ_Devices"]:
+        #         if not isinstance(config["NIDAQ_Devices", dev], dict):
+        #             continue
+        #         elif 'Example' in dev:
+        #             continue
+        #         try:
+        #             device_name = config["NIDAQ_Devices", dev].get('name')
+        #             if device_name not in current_device.name:
+        #                 continue
+        #             device_product = config["NIDAQ_Devices", dev].get('product')
+        #             device = niDevice(device_name)
+        #             assert device in self.devices and device.product_type == device_product, device.name
+        #         except AssertionError as err:
+        #             logger.error("Device {} not detected: {}".format(device_name, err))
+        #             continue
+        #         for mod in config["NIDAQ_Devices", dev]:
+        #             if not isinstance(config["NIDAQ_Devices", dev, mod], dict):
+        #                 continue
+        #             try:
+        #                 module_name = config["NIDAQ_Devices", dev, mod].get('name')
+        #                 if current_device.name not in module_name:
+        #                     continue
+        #                 module_product = config["NIDAQ_Devices", dev, mod].get('product')
+        #                 module = niDevice(module_name)
+        #                 assert module in self.devices and module.product_type == module_product, module.name
+        #                 viewer.config_modules.append(config["NIDAQ_Devices", dev, mod].get('name'))
+        #             except AssertionError as err:
+        #                 logger.error("Module {} not detected: {}".format(module_name, err))
+        #                 continue
+        #             for src in config["NIDAQ_Devices", dev, mod]:
+        #                 if not isinstance(config["NIDAQ_Devices", dev, mod, src], dict):
+        #                     continue
+        #                 if src == "ai":
+        #                     ai = config["NIDAQ_Devices", dev, mod, src]
+        #                     for ch in ai.keys():
+        #                         name = module_name + "/" + str(ch)
+        #                         source = ChannelType[ai[ch].get("source")]
+        #                         analog_type = UsageTypeAI[ai[ch].get("analog_type")]
+        #                         if analog_type == UsageTypeAI.VOLTAGE:
+        #                             term = TerminalConfiguration[ai[ch].get("termination")]
+        #                             viewer.config_channels.append(AIChannel
+        #                                                           (name=name,
+        #                                                            source=source,
+        #                                                            analog_type=analog_type,
+        #                                                            value_min=float(ai[ch].get("value_min")),
+        #                                                            value_max=float(ai[ch].get("value_max")),
+        #                                                            termination=term,
+        #                                                            ))
+        #                         elif analog_type == UsageTypeAI.CURRENT:
+        #                             term = TerminalConfiguration[ai[ch].get("termination")]
+        #                             viewer.config_channels.append(AIChannel
+        #                                                           (name=name,
+        #                                                            source=source,
+        #                                                            analog_type=analog_type,
+        #                                                            value_min=float(ai[ch].get("value_min")),
+        #                                                            value_max=float(ai[ch].get("value_max")),
+        #                                                            termination=term,
+        #                                                            ))
+        #                         elif analog_type == UsageTypeAI.TEMPERATURE_THERMOCOUPLE:
+        #                             th = ThermocoupleType[ai[ch].get("thermo_type")]
+        #                             viewer.config_channels.append(AIThermoChannel
+        #                                                           (name=name,
+        #                                                            source=source,
+        #                                                            analog_type=analog_type,
+        #                                                            value_min=float(ai[ch].get("value_min")),
+        #                                                            value_max=float(ai[ch].get("value_max")),
+        #                                                            thermo_type=th,
+        #                                                            ))
+        #     logger.info("Devices from config: {}".format(viewer.config_devices))
+        #     logger.info("Modules from config: {}".format(viewer.config_modules))
+        #     logger.info("Channels from config: {}".format([ch.name for ch in viewer.config_channels]))
+        # except AssertionError as err:
+        #     logger.error("Configuration entries <{}> does not match the hardware ".format(err))
+        # except Exception as err:
+        #     logger.info("Configuration sequence error, verify if your config matches the hardware: {}".format(err))
+        logger.info("       ********** CONFIGURATION BACKING UP SEQUENCE SUCCESSFULLY ENDED **********")
+
     @classmethod
     def getAOMaxRate(cls, device):
         return niDevice(device).ao_max_rate
