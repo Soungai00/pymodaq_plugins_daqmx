@@ -193,7 +193,19 @@ class DAQ_NIDAQmx_Viewer(DAQ_Viewer_base, DAQ_NIDAQmx_base):
                         config_dict['NIDAQ_Devices'][toml_subsection_extension_name] = \
                             {'title': "Configuration entry for a NIDAQmx device", 'name': device_name,
                              'product': device_product}
-                cfs_list = self.get_channels_from_settings()
+                temporary_NIDAQ_devices_length = len(config_dict['NIDAQ_Devices']['DEVICE01']) # there is supposed at least one chassis to be plugged
+                for device in devices_collection:
+                    if device.product_category == ProductCategory.C_SERIES_MODULE:
+                        cDAQ_chassis_name = device.compact_daq_chassis_device.name
+                        for ni_daq_device in config_dict['NIDAQ_Devices']:
+                            if config_dict['NIDAQ_Devices'][ni_daq_device]['name'] == cDAQ_chassis_name:
+                                module_number = len(config_dict['NIDAQ_Devices'][ni_daq_device]) - temporary_NIDAQ_devices_length
+                                toml_subsection_extension_name = "MODULE0" + str(module_number + 1) # there is supposed to be no more than 9 modules on a device
+                                config_dict['NIDAQ_Devices'][ni_daq_device][toml_subsection_extension_name] = \
+                                    {'title': 'Example of module plugged in a NIDAQmx device',
+                                     'name': device.name,
+                                     'product': device.product_type}
+                cfs_list = self.get_channels_from_settings(from_all_devices=True) # "cfs" for "channels from settings"
                 for cfs in cfs_list: # self.get_channels_from_settings():
                     n = cfs_list.index(cfs)
                     toml_section_name = "CHAN" + str(n)

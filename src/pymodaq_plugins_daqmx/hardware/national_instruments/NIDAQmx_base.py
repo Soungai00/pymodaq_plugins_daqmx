@@ -395,7 +395,7 @@ class DAQ_NIDAQmx_base:
         else:
             logger.warning("No channels assigned, task not created")
 
-    def get_channels_from_settings(self):
+    def get_channels_from_settings(self, from_all_devices=False):
         channels = []
         if self.settings['NIDAQ_type'] == ChannelType.ANALOG_INPUT.name:  # analog input
             source = ChannelType.ANALOG_INPUT
@@ -454,8 +454,8 @@ class DAQ_NIDAQmx_base:
             for channel in self.settings.child('do_channels').children():
                 channels.append(DOChannel(name=channel.opts['title'],
                                           source=source))
-
-        channels = [ch for ch in channels if self.settings.child("devices").value() in ch.name]
+        if not from_all_devices:
+            channels = [ch for ch in channels if self.settings.child("devices").value() in ch.name]
         return channels
 
     def stop(self):
