@@ -5,7 +5,7 @@ from pymodaq_gui.parameter import Parameter
 from pymodaq_gui.parameter.pymodaq_ptypes import registerParameterType, GroupParameter
 from pymodaq_plugins_daqmx.hardware.national_instruments.daqmxni import NIDAQmx, Edge, ChannelType, ClockSettings, \
     AIChannel, AIThermoChannel, AOChannel, CIChannel, COChannel, DOChannel, DIChannel, UsageTypeAI, UsageTypeAO, \
-    ThermocoupleType, TerminalConfiguration, TriggerSettings
+    ThermocoupleType, TerminalConfiguration, TriggerSettings, ProductCategory
 
 
 logger = set_logger(get_module_name(__file__))

@@ -3,7 +3,7 @@ import numpy as np
 import traceback
 from .daqmxni import NIDAQmx, niDevice
 from pymodaq_plugins_daqmx.hardware.national_instruments.NIDAQmx_base import DAQ_NIDAQmx_base, TerminalConfiguration, \
-    UsageTypeAI, ChannelType
+    UsageTypeAI, ChannelType, ProductCategory
 from pymodaq.control_modules.viewer_utility_classes import DAQ_Viewer_base, comon_parameters as viewer_params
 from pymodaq.utils.daq_utils import ThreadCommand
 from pymodaq.utils.data import DataFromPlugins, DataToExport
@@ -179,11 +179,24 @@ class DAQ_NIDAQmx_Viewer(DAQ_Viewer_base, DAQ_NIDAQmx_base):
                 self.set_max_frequency()  # Set the acquisition frequency to the device maximum frequency
             elif param.name() == 'save_config' and param.value():
                 self.controller.configuration_backing_up_sequence(self, self.controller.device)
-                config_dict = {}
+                config_dict = {'title' : 'Configuration file of the DAQmx plugin', 'NIDAQ_Devices' : {}}
+                devices_collection = nidaqmx.system.System.local().devices
+                for device in devices_collection:
+                    if device.product_category == ProductCategory.COMPACT_DAQ_CHASSIS:
+                        device_name = device.name
+                        device_product = device.product_type
+                        dev_dict_len = len(config_dict['NIDAQ_Devices'])
+                        if dev_dict_len < 9:
+                            toml_subsection_extension_name = "DEVICE0" + str(dev_dict_len + 1)
+                        elif dev_dict_len < 99:
+                            toml_subsection_extension_name = "DEVICE" + str(dev_dict_len + 1)
+                        config_dict['NIDAQ_Devices'][toml_subsection_extension_name] = \
+                            {'title': "Configuration entry for a NIDAQmx device", 'name': device_name,
+                             'product': device_product}
                 cfs_list = self.get_channels_from_settings()
                 for cfs in cfs_list: # self.get_channels_from_settings():
                     n = cfs_list.index(cfs)
-                    toml_section_name = "MODULE" + str(n)
+                    toml_section_name = "CHAN" + str(n)
                     config_string_to_write = ""
                     cfs_config_dict = {}
                     cfs_name = cfs.name
