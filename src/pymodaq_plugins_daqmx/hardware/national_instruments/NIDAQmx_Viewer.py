@@ -194,6 +194,7 @@ class DAQ_NIDAQmx_Viewer(DAQ_Viewer_base, DAQ_NIDAQmx_base):
                             {'title': "Configuration entry for a NIDAQmx device", 'name': device_name,
                              'product': device_product}
                 temporary_NIDAQ_devices_length = len(config_dict['NIDAQ_Devices']['DEVICE01']) # there is supposed at least one chassis to be plugged
+                modules_dict = {}
                 for device in devices_collection:
                     if device.product_category == ProductCategory.C_SERIES_MODULE:
                         cDAQ_chassis_name = device.compact_daq_chassis_device.name
@@ -205,10 +206,16 @@ class DAQ_NIDAQmx_Viewer(DAQ_Viewer_base, DAQ_NIDAQmx_base):
                                     {'title': 'Example of module plugged in a NIDAQmx device',
                                      'name': device.name,
                                      'product': device.product_type}
+                                modules_dict[device.name] = {'chassis_id' : ni_daq_device, 'module_id': toml_subsection_extension_name} # <- à utiliser pour suites dev
                 cfs_list = self.get_channels_from_settings(from_all_devices=True) # "cfs" for "channels from settings"
-                for cfs in cfs_list: # self.get_channels_from_settings():
+                abbrev_chan_type_dict = {ChannelType.ANALOG_INPUT : 'ai',
+                                         ChannelType.ANALOG_OUTPUT : 'ao',
+                                         ChannelType.COUNTER_INPUT : 'ci',
+                                         ChannelType.COUNTER_OUTPUT : 'co',
+                                         ChannelType.DIGITAL_INPUT : 'di',
+                                         ChannelType.DIGITAL_OUTPUT : 'do'}
+                for cfs in cfs_list:
                     n = cfs_list.index(cfs)
-                    toml_section_name = "CHAN" + str(n)
                     config_string_to_write = ""
                     cfs_config_dict = {}
                     cfs_name = cfs.name
@@ -245,7 +252,22 @@ class DAQ_NIDAQmx_Viewer(DAQ_Viewer_base, DAQ_NIDAQmx_base):
                     config_string_to_write = 'info = "' + cfs_info + '"\n' + config_string_to_write
                     cfs_config_dict['info'] = cfs_info
                     print(config_string_to_write + "\n\n")
-                    config_dict[toml_section_name] = cfs_config_dict
+                    [module_name, physical_chan_name] = cfs_name.split('/')
+                    chassis_id = modules_dict[module_name]['chassis_id']
+                    module_id = modules_dict[module_name]['module_id']
+                    abbrev_chan_type = abbrev_chan_type_dict[cfs.source]
+                    if abbrev_chan_type not in config_dict['NIDAQ_Devices'][chassis_id][module_id]:
+                        config_dict['NIDAQ_Devices'][chassis_id][module_id][abbrev_chan_type] = {}
+                    chan_type_dict_len = len(config_dict['NIDAQ_Devices'][chassis_id][module_id][abbrev_chan_type])
+                    chan_num_str = physical_chan_name.strip('ai')
+                    if int(chan_num_str) < 10:
+                      chan_id_num = "0" + chan_num_str
+                    # if chan_type_dict_len < 9:
+                    #   chan_id_num = "0" + str(chan_type_dict_len + 1)
+                    else :
+                        chan_id_num = chan_num_str # there is supposed to be no more than 99 channels on one module
+                    chan_id = abbrev_chan_type+chan_id_num
+                    config_dict['NIDAQ_Devices'][chassis_id][module_id][abbrev_chan_type][physical_chan_name] = cfs_config_dict
                 param.setToDefault()
                 print("config_dict = ", config_dict)
                 config_file_path = daqmx_config.config_path
