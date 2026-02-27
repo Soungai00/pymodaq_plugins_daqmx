@@ -244,6 +244,9 @@ class DAQ_NIDAQmx_Viewer(DAQ_Viewer_base, DAQ_NIDAQmx_base):
                             if cfs.source == ChannelType.ANALOG_INPUT:
                                 cfs_termination = cfs.termination.name
                                 match cfs.analog_type:
+                                    case UsageTypeAI.CURRENT:
+                                        cfs_info = "Example of AI current channel"
+                                        cfs_config_dict['termination'] = cfs_termination
                                     case UsageTypeAI.VOLTAGE:
                                         cfs_info = "Example of AI voltage channel"
                                         cfs_config_dict['termination'] = cfs_termination
