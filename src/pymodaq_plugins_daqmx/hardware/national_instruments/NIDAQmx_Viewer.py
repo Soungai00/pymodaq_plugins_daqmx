@@ -246,7 +246,6 @@ class DAQ_NIDAQmx_Viewer(DAQ_Viewer_base, DAQ_NIDAQmx_base):
                                 match cfs.analog_type:
                                     case UsageTypeAI.VOLTAGE:
                                         cfs_info = "Example of AI voltage channel"
-                                        config_string_to_write = config_string_to_write + ' termination = "' + str(cfs_termination) + '"\n'
                                         cfs_config_dict['termination'] = cfs_termination
                                     case UsageTypeAI.TEMPERATURE_THERMOCOUPLE:
                                         cfs_info = "Example of AI thermocouple channel"
