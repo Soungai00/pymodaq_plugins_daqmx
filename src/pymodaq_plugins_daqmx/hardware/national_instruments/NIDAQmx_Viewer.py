@@ -254,7 +254,7 @@ class DAQ_NIDAQmx_Viewer(DAQ_Viewer_base, DAQ_NIDAQmx_base):
                                         config_string_to_write += 'thermo_type = "' + str(cfs_thermo_type) + '"\n'
                                     # The other AI type cases are still to implement
                             else:
-                                pass # to complete
+                                pass # to complete (for analog outputs, and counter or digital channels)
                         cfs_config_dict['info'] = cfs_info
                         [module_name, physical_chan_name] = cfs_name.split('/')
                         chassis_id = modules_dict[module_name]['chassis_id']
@@ -277,7 +277,7 @@ class DAQ_NIDAQmx_Viewer(DAQ_Viewer_base, DAQ_NIDAQmx_base):
                     logger.info("********** CONFIGURATION BACKING UP SEQUENCE SUCCESSFULLY ENDED **********")
                 except Exception as err:
                     logger.info("Configuration sequence error, verify if your config matches the hardware: {}".format(err))
-                param.setToDefault()
+                param.setValue(not param.value()) # button mechanical action : it turns back to its value before user click
             self.channels = self.get_channels_from_settings()
             self.get_max_frequency()  # Set the frequency 'max' option to the device maximum frequency and display it
 
