@@ -312,11 +312,11 @@ class NIDAQmx:
             logger.info("Devices from config: {}".format(viewer.config_devices))
             logger.info("Modules from config: {}".format(viewer.config_modules))
             logger.info("Channels from config: {}".format([ch.name for ch in viewer.config_channels]))
+            logger.info("       ********** CONFIGURATION SEQUENCE SUCCESSFULLY ENDED **********")
         except AssertionError as err:
             logger.error("Configuration entries <{}> does not match the hardware ".format(err))
         except Exception as err:
             logger.info("Configuration sequence error, verify if your config matches the hardware: {}".format(err))
-        logger.info("       ********** CONFIGURATION SEQUENCE SUCCESSFULLY ENDED **********")
 
     def configuration_backing_up_sequence(self, viewer, current_device):
         """Save in user the configuration file the configuration of each  / modules / channels as giver in the parameters menu
