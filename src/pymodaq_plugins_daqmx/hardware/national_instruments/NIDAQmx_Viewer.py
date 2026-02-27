@@ -177,101 +177,108 @@ class DAQ_NIDAQmx_Viewer(DAQ_Viewer_base, DAQ_NIDAQmx_base):
                                 TerminalConfiguration.DEFAULT.name)
                 self.channels = self.get_channels_from_settings()
                 self.set_max_frequency()  # Set the acquisition frequency to the device maximum frequency
+
             elif param.name() == 'save_config' and param.value():
-                self.controller.configuration_backing_up_sequence(self, self.controller.device)
-                config_dict = {'title' : 'Configuration file of the DAQmx plugin', 'NIDAQ_Devices' : {}}
-                devices_collection = nidaqmx.system.System.local().devices
-                for device in devices_collection:
-                    if device.product_category == ProductCategory.COMPACT_DAQ_CHASSIS:
-                        device_name = device.name
-                        device_product = device.product_type
-                        dev_dict_len = len(config_dict['NIDAQ_Devices'])
-                        if dev_dict_len < 9:
-                            toml_subsection_extension_name = "DEVICE0" + str(dev_dict_len + 1)
-                        elif dev_dict_len < 99:
-                            toml_subsection_extension_name = "DEVICE" + str(dev_dict_len + 1)
-                        config_dict['NIDAQ_Devices'][toml_subsection_extension_name] = \
-                            {'title': "Configuration entry for a NIDAQmx device", 'name': device_name,
-                             'product': device_product}
-                temporary_NIDAQ_devices_length = len(config_dict['NIDAQ_Devices']['DEVICE01']) # there is supposed at least one chassis to be plugged
-                modules_dict = {}
-                for device in devices_collection:
-                    if device.product_category == ProductCategory.C_SERIES_MODULE:
-                        cDAQ_chassis_name = device.compact_daq_chassis_device.name
-                        for ni_daq_device in config_dict['NIDAQ_Devices']:
-                            if config_dict['NIDAQ_Devices'][ni_daq_device]['name'] == cDAQ_chassis_name:
-                                module_number = len(config_dict['NIDAQ_Devices'][ni_daq_device]) - temporary_NIDAQ_devices_length
-                                toml_subsection_extension_name = "MODULE0" + str(module_number + 1) # there is supposed to be no more than 9 modules on a device
-                                config_dict['NIDAQ_Devices'][ni_daq_device][toml_subsection_extension_name] = \
-                                    {'title': 'Example of module plugged in a NIDAQmx device',
-                                     'name': device.name,
-                                     'product': device.product_type}
-                                modules_dict[device.name] = {'chassis_id' : ni_daq_device, 'module_id': toml_subsection_extension_name} # <- à utiliser pour suites dev
-                cfs_list = self.get_channels_from_settings(from_all_devices=True) # "cfs" for "channels from settings"
-                abbrev_chan_type_dict = {ChannelType.ANALOG_INPUT : 'ai',
-                                         ChannelType.ANALOG_OUTPUT : 'ao',
-                                         ChannelType.COUNTER_INPUT : 'ci',
-                                         ChannelType.COUNTER_OUTPUT : 'co',
-                                         ChannelType.DIGITAL_INPUT : 'di',
-                                         ChannelType.DIGITAL_OUTPUT : 'do'}
-                for cfs in cfs_list:
-                    n = cfs_list.index(cfs)
-                    config_string_to_write = ""
-                    cfs_config_dict = {}
-                    cfs_name = cfs.name
-                    cfs_source = cfs.source.name
-                    if cfs.source in [ChannelType.ANALOG_INPUT, ChannelType.ANALOG_OUTPUT]:
-                        cfs_analog_type = cfs.analog_type.name
-                        cfs_value_min = cfs.value_min
-                        cfs_value_max = cfs.value_max
-                        config_string_to_write += 'name = "' + str(cfs_name) + '"\n' + "" \
-                                                    'source = "' + str(cfs_source) + '"\n' + "" \
-                                                    'analog_type = "' + str(cfs_analog_type) + '"\n' + "" \
-                                                    'value_min = ' + str(cfs_value_min) + '\n' + "" \
-                                                    'value_max = ' + str(cfs_value_max) + '\n'
-                        cfs_config_dict['name'] = cfs_name
-                        cfs_config_dict['source'] = cfs_source
-                        cfs_config_dict['analog_type'] = cfs_analog_type
-                        cfs_config_dict['value_min'] = cfs_value_min
-                        cfs_config_dict['value_max'] = cfs_value_max
-                        if cfs.source == ChannelType.ANALOG_INPUT:
-                            cfs_termination = cfs.termination.name
-                            match cfs.analog_type:
-                                case UsageTypeAI.VOLTAGE:
-                                    cfs_info = "Example of AI voltage channel"
-                                    config_string_to_write = config_string_to_write + ' termination = "' + str(cfs_termination) + '"\n'
-                                    cfs_config_dict['termination'] = cfs_termination
-                                case UsageTypeAI.TEMPERATURE_THERMOCOUPLE:
-                                    cfs_info = "Example of AI thermocouple channel"
-                                    cfs_thermo_type = cfs.thermo_type.name
-                                    cfs_config_dict['thermo_type'] = cfs_thermo_type
-                                    config_string_to_write += 'thermo_type = "' + str(cfs_thermo_type) + '"\n'
-                                # The other AI type cases are still to implement
-                        else:
-                            pass # to complete
-                    config_string_to_write = 'info = "' + cfs_info + '"\n' + config_string_to_write
-                    cfs_config_dict['info'] = cfs_info
-                    print(config_string_to_write + "\n\n")
-                    [module_name, physical_chan_name] = cfs_name.split('/')
-                    chassis_id = modules_dict[module_name]['chassis_id']
-                    module_id = modules_dict[module_name]['module_id']
-                    abbrev_chan_type = abbrev_chan_type_dict[cfs.source]
-                    if abbrev_chan_type not in config_dict['NIDAQ_Devices'][chassis_id][module_id]:
-                        config_dict['NIDAQ_Devices'][chassis_id][module_id][abbrev_chan_type] = {}
-                    chan_type_dict_len = len(config_dict['NIDAQ_Devices'][chassis_id][module_id][abbrev_chan_type])
-                    chan_num_str = physical_chan_name.strip('ai')
-                    if int(chan_num_str) < 10:
-                      chan_id_num = "0" + chan_num_str
-                    # if chan_type_dict_len < 9:
-                    #   chan_id_num = "0" + str(chan_type_dict_len + 1)
-                    else :
-                        chan_id_num = chan_num_str # there is supposed to be no more than 99 channels on one module
-                    chan_id = abbrev_chan_type+chan_id_num
-                    config_dict['NIDAQ_Devices'][chassis_id][module_id][abbrev_chan_type][physical_chan_name] = cfs_config_dict
+                logger.info("********** CONFIGURATION BACKING UP SEQUENCE INITIALIZED **********")
+                try:
+                    config_dict = {'title' : 'Configuration file of the DAQmx plugin', 'NIDAQ_Devices': {}}
+                    devices_collection = nidaqmx.system.System.local().devices
+
+                    # CONFIGURATION OF THE "DEVICES"
+                    for device in devices_collection:
+                        if device.product_category == ProductCategory.COMPACT_DAQ_CHASSIS:
+                            device_name = device.name
+                            device_product = device.product_type
+                            dev_dict_len = len(config_dict['NIDAQ_Devices'])
+                            if dev_dict_len < 9:
+                                toml_subsection_extension_name = "DEVICE0" + str(dev_dict_len + 1)
+                            elif dev_dict_len < 99:
+                                toml_subsection_extension_name = "DEVICE" + str(dev_dict_len + 1)
+                            config_dict['NIDAQ_Devices'][toml_subsection_extension_name] = \
+                                {'title': "Configuration entry for a NIDAQmx device", 'name': device_name,
+                                 'product': device_product}
+
+                    # CONFIGURATION OF THE MODULES
+                    temporary_NIDAQ_devices_length = len(config_dict['NIDAQ_Devices']['DEVICE01']) # there is supposed at least one chassis to be plugged
+                    modules_dict = {}
+                    for device in devices_collection:
+                        if device.product_category == ProductCategory.C_SERIES_MODULE:
+                            cDAQ_chassis_name = device.compact_daq_chassis_device.name
+                            for ni_daq_device in config_dict['NIDAQ_Devices']:
+                                if config_dict['NIDAQ_Devices'][ni_daq_device]['name'] == cDAQ_chassis_name:
+                                    module_number = len(config_dict['NIDAQ_Devices'][ni_daq_device]) - temporary_NIDAQ_devices_length
+                                    toml_subsection_extension_name = "MODULE0" + str(module_number + 1) # there is supposed to be no more than 9 modules on a device
+                                    config_dict['NIDAQ_Devices'][ni_daq_device][toml_subsection_extension_name] = \
+                                        {'title': 'Example of module plugged in a NIDAQmx device',
+                                         'name': device.name,
+                                         'product': device.product_type}
+                                    modules_dict[device.name] = {'chassis_id' : ni_daq_device, 'module_id': toml_subsection_extension_name} # <- à utiliser pour suites dev
+
+                    # CONFIGURATION OF THE DAQmx CHANNELS
+                    cfs_list = self.get_channels_from_settings(from_all_devices=True) # "cfs" for "channels from settings"
+                    abbrev_chan_type_dict = {ChannelType.ANALOG_INPUT : 'ai',
+                                             ChannelType.ANALOG_OUTPUT : 'ao',
+                                             ChannelType.COUNTER_INPUT : 'ci',
+                                             ChannelType.COUNTER_OUTPUT : 'co',
+                                             ChannelType.DIGITAL_INPUT : 'di',
+                                             ChannelType.DIGITAL_OUTPUT : 'do'}
+                    for cfs in cfs_list:
+                        config_string_to_write = ""
+                        cfs_config_dict = {}
+                        cfs_name = cfs.name
+                        cfs_source = cfs.source.name
+                        if cfs.source in [ChannelType.ANALOG_INPUT, ChannelType.ANALOG_OUTPUT]:
+                            cfs_analog_type = cfs.analog_type.name
+                            cfs_value_min = cfs.value_min
+                            cfs_value_max = cfs.value_max
+                            config_string_to_write += 'name = "' + str(cfs_name) + '"\n' + "" \
+                                                        'source = "' + str(cfs_source) + '"\n' + "" \
+                                                        'analog_type = "' + str(cfs_analog_type) + '"\n' + "" \
+                                                        'value_min = ' + str(cfs_value_min) + '\n' + "" \
+                                                        'value_max = ' + str(cfs_value_max) + '\n'
+                            cfs_config_dict['name'] = cfs_name
+                            cfs_config_dict['source'] = cfs_source
+                            cfs_config_dict['analog_type'] = cfs_analog_type
+                            cfs_config_dict['value_min'] = cfs_value_min
+                            cfs_config_dict['value_max'] = cfs_value_max
+                            if cfs.source == ChannelType.ANALOG_INPUT:
+                                cfs_termination = cfs.termination.name
+                                match cfs.analog_type:
+                                    case UsageTypeAI.VOLTAGE:
+                                        cfs_info = "Example of AI voltage channel"
+                                        config_string_to_write = config_string_to_write + ' termination = "' + str(cfs_termination) + '"\n'
+                                        cfs_config_dict['termination'] = cfs_termination
+                                    case UsageTypeAI.TEMPERATURE_THERMOCOUPLE:
+                                        cfs_info = "Example of AI thermocouple channel"
+                                        cfs_thermo_type = cfs.thermo_type.name
+                                        cfs_config_dict['thermo_type'] = cfs_thermo_type
+                                        config_string_to_write += 'thermo_type = "' + str(cfs_thermo_type) + '"\n'
+                                    # The other AI type cases are still to implement
+                            else:
+                                pass # to complete
+                        cfs_config_dict['info'] = cfs_info
+                        [module_name, physical_chan_name] = cfs_name.split('/')
+                        chassis_id = modules_dict[module_name]['chassis_id']
+                        module_id = modules_dict[module_name]['module_id']
+                        abbrev_chan_type = abbrev_chan_type_dict[cfs.source]
+                        if abbrev_chan_type not in config_dict['NIDAQ_Devices'][chassis_id][module_id]:
+                            config_dict['NIDAQ_Devices'][chassis_id][module_id][abbrev_chan_type] = {}
+                        chan_num_str = physical_chan_name.strip('ai')
+                        if int(chan_num_str) < 10:
+                          chan_id_num = "0" + chan_num_str
+                        # if chan_type_dict_len < 9:
+                        #   chan_id_num = "0" + str(chan_type_dict_len + 1)
+                        else :
+                            chan_id_num = chan_num_str # there is supposed to be no more than 99 channels on one module
+                        chan_id = abbrev_chan_type+chan_id_num
+                        config_dict['NIDAQ_Devices'][chassis_id][module_id][abbrev_chan_type][physical_chan_name] = cfs_config_dict
+
+                    config_file_path = daqmx_config.config_path
+                    utils_config.create_toml_from_dict(config_dict, config_file_path)
+                    logger.info("********** CONFIGURATION BACKING UP SEQUENCE SUCCESSFULLY ENDED **********")
+                except Exception as err:
+                    logger.info("Configuration sequence error, verify if your config matches the hardware: {}".format(err))
                 param.setToDefault()
-                print("config_dict = ", config_dict)
-                config_file_path = daqmx_config.config_path
-                utils_config.create_toml_from_dict(config_dict, config_file_path)
             self.channels = self.get_channels_from_settings()
             self.get_max_frequency()  # Set the frequency 'max' option to the device maximum frequency and display it
 

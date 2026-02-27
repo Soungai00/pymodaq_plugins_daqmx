@@ -323,8 +323,8 @@ class NIDAQmx:
 
         Write in the .toml file to get the hardware configuration as configured in the nidaqmx.
         """
-        logger.info("********** CONFIGURATION BACKING UP SEQUENCE INITIALIZED **********")
-        print("viewer.config_modules : " + str(viewer.config_modules))
+        # logger.info("********** CONFIGURATION BACKING UP SEQUENCE INITIALIZED **********")
+        # print("viewer.config_modules : " + str(viewer.config_modules))
         # try:
         #     viewer.config_devices = [config["NIDAQ_Devices", dev].get('name') for dev in config["NIDAQ_Devices"]
         #                              if "Mod" not in config["NIDAQ_Devices", dev].get('name')]
@@ -403,7 +403,7 @@ class NIDAQmx:
         #     logger.error("Configuration entries <{}> does not match the hardware ".format(err))
         # except Exception as err:
         #     logger.info("Configuration sequence error, verify if your config matches the hardware: {}".format(err))
-        logger.info("       ********** CONFIGURATION BACKING UP SEQUENCE SUCCESSFULLY ENDED **********")
+        # logger.info("       ********** CONFIGURATION BACKING UP SEQUENCE SUCCESSFULLY ENDED **********")
 
     @classmethod
     def getAOMaxRate(cls, device):
