@@ -396,15 +396,18 @@ class NIDAQmx:
             devices = cls.get_NIDAQ_devices().device_names
 
         for device in devices:
-            if cls.isDigitalTriggeringSupported(device):
-                string = niDevice(device).terminals
-                channels = [chan for chan in string if 'PFI' in chan]
-                if channels != ['']:
-                    sources.extend(channels)
-            if cls.isAnalogTriggeringSupported(device):
-                channels = niDevice(device).ai_physical_chans.channel_names
-                if channels != ['']:
-                    sources.extend(channels)
+            try:
+                if cls.isDigitalTriggeringSupported(device):
+                    string = niDevice(device).terminals
+                    channels = [chan for chan in string if 'PFI' in chan]
+                    if channels != ['']:
+                        sources.extend(channels)
+                if cls.isAnalogTriggeringSupported(device):
+                    channels = niDevice(device).ai_physical_chans.channel_names
+                    if channels != ['']:
+                        sources.extend(channels)
+            except DaqError as err:
+                logger.error("Daq error with device {}: {}".format(device, err))
         return sources
 
     def update_task(self, channels=[], clock_settings=ClockSettings(), trigger_settings=TriggerSettings()):
