@@ -42,7 +42,7 @@ class DAQ_0DViewer_NIDAQmx(DAQ_NIDAQmx_Viewer):
         channels_names = [ch.name for ch in self.channels]
         data_from_task = self.controller.task.read(timeout=20.0)
         if isinstance(data_from_task, float):
-            data_dfp = np.array([data_from_task])
+            data_dfp = [np.array([data_from_task])]
         else:
             data_dfp = list(map(lambda f: np.array([f]), data_from_task))
         self.dte_signal.emit(DataToExport(name='NIDAQmx',
