@@ -5,7 +5,7 @@ from pymodaq_gui.parameter import Parameter
 from pymodaq_gui.parameter.pymodaq_ptypes import registerParameterType, GroupParameter
 from pymodaq_plugins_daqmx.hardware.national_instruments.daqmxni import NIDAQmx, Edge, ChannelType, ClockSettings, \
     AIChannel, AIThermoChannel, AOChannel, CIChannel, COChannel, DOChannel, DIChannel, UsageTypeAI, UsageTypeAO, \
-    ThermocoupleType, TerminalConfiguration, TriggerSettings, RTDType, TemperatureUnits, ResistanceConfiguration,\
+    ThermocoupleType, TerminalConfiguration, TriggerSettings, ProductCategory, RTDType, TemperatureUnits, ResistanceConfiguration,\
     ExcitationSource , AI_RTD_Channel
 
 
@@ -226,6 +226,8 @@ class DAQ_NIDAQmx_base:
     params = [{'title': 'Refresh hardware:', 'name': 'refresh_hardware', 'type': 'bool', 'value': False},
               {'title': 'Signal type:', 'name': 'NIDAQ_type', 'type': 'list',
                'limits': [Ds.name for Ds in ChannelType]},
+              {'title': 'Save plugin config:', 'name': 'save_config', 'type': 'bool_push', 'value': False,
+               'readonly': False, 'label': 'Save Config'},
               {'title': 'Plugin config:', 'name': 'load_config', 'type': 'bool_push', 'value': False,
                'readonly': False, 'label': 'Load Config'},
               {'title': 'NSamples To Read:', 'name': 'nsamplestoread', 'type': 'int', 'value': 10, 'default': 10,
@@ -409,7 +411,7 @@ class DAQ_NIDAQmx_base:
         else:
             logger.warning("No channels assigned, task not created")
 
-    def get_channels_from_settings(self):
+    def get_channels_from_settings(self, from_all_devices=False):
         """
             Browse the viewer settings to gather all the channels that will be used.
         """
@@ -488,8 +490,8 @@ class DAQ_NIDAQmx_base:
             for channel in self.settings.child('do_channels').children():
                 channels.append(DOChannel(name=channel.opts['title'],
                                           source=source))
-
-        channels = [ch for ch in channels if self.settings.child("devices").value() in ch.name]
+        if not from_all_devices:
+            channels = [ch for ch in channels if self.settings.child("devices").value() in ch.name]
         return channels
 
     def stop(self):

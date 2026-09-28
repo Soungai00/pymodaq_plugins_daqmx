@@ -5,8 +5,8 @@ from pymodaq.utils.logger import set_logger, get_module_name
 from nidaqmx.constants import (AcquisitionType, VoltageUnits, CurrentUnits, CurrentShuntResistorLocation, \
                                 TemperatureUnits, CJCSource, CountDirection, Level, FrequencyUnits, TimeUnits, \
                                 LineGrouping, UsageTypeAI, UsageTypeAO, UsageTypeCI, UsageTypeCO, Edge, \
-                                TerminalConfiguration, ThermocoupleType, ChannelType, RTDType, TemperatureUnits,
-                               ResistanceConfiguration, ExcitationSource)
+                                TerminalConfiguration, ThermocoupleType, ChannelType, ProductCategory, \
+                                RTDType, TemperatureUnits, ResistanceConfiguration, ExcitationSource)
 
 from nidaqmx.system import System as niSystem
 from nidaqmx.system.device import Device as niDevice
@@ -363,11 +363,11 @@ class NIDAQmx:
             logger.info("Devices from config: {}".format(viewer.config_devices))
             logger.info("Modules from config: {}".format(viewer.config_modules))
             logger.info("Channels from config: {}".format([ch.name for ch in viewer.config_channels]))
+            logger.info("       ********** CONFIGURATION SEQUENCE SUCCESSFULLY ENDED **********")
         except AssertionError as err:
             logger.error("Configuration entries <{}> does not match the hardware ".format(err))
         except Exception as err:
             logger.info("Configuration sequence error, verify if your config matches the hardware: {}".format(err))
-        logger.info("       ********** CONFIGURATION SEQUENCE SUCCESSFULLY ENDED **********")
 
     @classmethod
     def getAOMaxRate(cls, device):
