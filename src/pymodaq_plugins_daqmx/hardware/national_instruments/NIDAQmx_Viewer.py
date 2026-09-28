@@ -1,12 +1,10 @@
-import nidaqmx
-import numpy as np
 import traceback
-from .daqmxni import NIDAQmx, niDevice
-from pymodaq_plugins_daqmx.hardware.national_instruments.NIDAQmx_base import DAQ_NIDAQmx_base, TerminalConfiguration, \
-    UsageTypeAI, ChannelType, ProductCategory
+
+from pymodaq_plugins_daqmx.hardware.national_instruments.daqmxni import niDevice
+from pymodaq_plugins_daqmx.hardware.national_instruments.NIDAQmx_base import NIDAQmx, DAQ_NIDAQmx_base, TerminalConfiguration, \
+
 from pymodaq.control_modules.viewer_utility_classes import DAQ_Viewer_base, comon_parameters as viewer_params
 from pymodaq.utils.daq_utils import ThreadCommand
-from pymodaq.utils.data import DataFromPlugins, DataToExport
 from pymodaq.utils.logger import set_logger, get_module_name
 
 from pymodaq_utils import config as utils_config
@@ -35,7 +33,6 @@ class DAQ_NIDAQmx_Viewer(DAQ_Viewer_base, DAQ_NIDAQmx_base):
     config_modules: list
     live: bool
     Naverage: int
-    live_mode_available = True
     param_devices = NIDAQmx.get_NIDAQ_devices().device_names
     params = viewer_params + [
         {'title': 'Devices :', 'name': 'devices', 'type': 'list', 'limits': param_devices,
@@ -81,7 +78,7 @@ class DAQ_NIDAQmx_Viewer(DAQ_Viewer_base, DAQ_NIDAQmx_base):
                 self.controller = NIDAQmx()
             else:
                 self.controller = controller
-            self.controller.device = nidaqmx.system.Device(self.settings["devices"])
+            self.controller.device = niDevice(self.settings["devices"])
 
             # actions to perform in order to set properly the settings tree options
             self.commit_settings(self.settings.child('NIDAQ_type'))
@@ -126,7 +123,7 @@ class DAQ_NIDAQmx_Viewer(DAQ_Viewer_base, DAQ_NIDAQmx_base):
                     param.child('current_settings', 'curr_min').setValue(curr_ranges[0])
                     param.child('current_settings', 'curr_max').setValue(curr_ranges[1])
             elif param.name() == 'devices':
-                self.controller.device = self.settings.child('devices')
+                self.controller.device = niDevice(self.settings["devices"])
             elif param.name() == 'load_config':
                 self.controller.configuration_sequence(self, self.controller.device)
                 self.settings.child('load_config').hide()
@@ -137,6 +134,7 @@ class DAQ_NIDAQmx_Viewer(DAQ_Viewer_base, DAQ_NIDAQmx_base):
                     ch_par.child("voltage_settings").show(ch.analog_type == UsageTypeAI.VOLTAGE)
                     ch_par.child("current_settings").show(ch.analog_type == UsageTypeAI.CURRENT)
                     ch_par.child("thermoc_settings").show(ch.analog_type == UsageTypeAI.TEMPERATURE_THERMOCOUPLE)
+                    ch_par.child("rtd_settings").show(ch.analog_type == UsageTypeAI.TEMPERATURE_RTD)
                     match ch.analog_type:
                         case UsageTypeAI.VOLTAGE:
                             self.settings.child("ai_channels", ch_par.opts['name'], "ai_type").setValue("VOLTAGE")
@@ -173,6 +171,56 @@ class DAQ_NIDAQmx_Viewer(DAQ_Viewer_base, DAQ_NIDAQmx_base):
                                                 ch_par.opts['name'],
                                                 "thermoc_settings",
                                                 "T_max").setValue(ch.value_max)
+                            self.settings.child("ai_channels", ch_par.opts['name'], "termination").setValue(
+                                TerminalConfiguration.DEFAULT.name)
+                        case UsageTypeAI.TEMPERATURE_RTD:
+                            ch_par.child("rtd_settings", "c-vd_coeff.").show(ch.rtd_type == RTDType.CUSTOM)
+                            self.settings.child("ai_channels", ch_par.opts['name'], "ai_type").setValue(
+                                "TEMPERATURE_RTD")
+                            self.settings.child("ai_channels",
+                                                ch_par.opts['name'],
+                                                "rtd_settings",
+                                                "min_value_in").setValue(ch.value_min)
+                            self.settings.child("ai_channels",
+                                                ch_par.opts['name'],
+                                                "rtd_settings",
+                                                "max_value_in").setValue(ch.value_max)
+                            self.settings.child("ai_channels",
+                                                ch_par.opts['name'],
+                                                "rtd_settings",
+                                                "temp_unit").setValue(ch.units.name)
+                            self.settings.child("ai_channels",
+                                                ch_par.opts['name'],
+                                                "rtd_settings",
+                                                "resistance_config").setValue(ch.resistance_config.name)
+                            self.settings.child("ai_channels",
+                                                ch_par.opts['name'],
+                                                "rtd_settings",
+                                                "r0").setValue(ch.r_0)
+                            self.settings.child("ai_channels",
+                                                ch_par.opts['name'],
+                                                "rtd_settings",
+                                                "rtd_type").setValue(ch.rtd_type.name)
+                            self.settings.child("ai_channels",
+                                                ch_par.opts['name'],
+                                                "rtd_settings", "c-vd_coeff.",
+                                                "a_c-vd_coeff").setValue(ch.a_cvd_coeff)
+                            self.settings.child("ai_channels",
+                                                ch_par.opts['name'],
+                                                "rtd_settings", "c-vd_coeff.",
+                                                "b_c-vd_coeff").setValue(ch.b_cvd_coeff)
+                            self.settings.child("ai_channels",
+                                                ch_par.opts['name'],
+                                                "rtd_settings", "c-vd_coeff.",
+                                                "c_c-vd_coeff").setValue(ch.c_cvd_coeff)
+                            self.settings.child("ai_channels",
+                                                ch_par.opts['name'],
+                                                "rtd_settings",
+                                                "current_excit_src").setValue(ch.current_excit_source.name)
+                            self.settings.child("ai_channels",
+                                                ch_par.opts['name'],
+                                                "rtd_settings",
+                                                "i_ex_value").setValue(ch.current_excit_val)
                             self.settings.child("ai_channels", ch_par.opts['name'], "termination").setValue(
                                 TerminalConfiguration.DEFAULT.name)
                 self.channels = self.get_channels_from_settings()
@@ -285,86 +333,30 @@ class DAQ_NIDAQmx_Viewer(DAQ_Viewer_base, DAQ_NIDAQmx_base):
             self.get_max_frequency()  # Set the frequency 'max' option to the device maximum frequency and display it
 
     def get_max_frequency(self):
+        """
+            Get the maximum frequency according to the material's limits and display the information.
+            This method is destined to be removed once set_max_frequency will work correctly.
+        """
         # Destined to be removed when set_max_frequency will work correctly
         try:
-            if self.settings.child('ai_channels').children() or self.settings.child('di_channels').children():
-                max_freq = self.controller.getAIMaxSingleRate(self.controller.device.name)/len(self.channels)
-                self.settings.child('clock_settings', 'max_freq').setValue(max_freq)
-            else:
-                max_freq = self.controller.getAIMaxSingleRate(self.controller.device.name)
-                self.settings.child('clock_settings', 'max_freq').setValue(max_freq)
+            max_freq = int(self.controller.getAIMaxSingleRate(self.controller.device.name))
+            self.settings.child('clock_settings', 'max_freq').setValue(max_freq)
         except:
             pass
 
     def set_max_frequency(self):
+        """
+            Set the maximum frequency applicable to the frequency parameter according to material's limits.
+        """
         # Opts 'max' get the right value but doesn't update the viewer which keep as max the initial max value
         try:
-            if self.settings.child('ai_channels').children() or self.settings.child('di_channels').children():
-                max_freq = self.controller.getAIMaxSingleRate(self.controller.device.name) / len(self.channels)
-                self.settings.child('clock_settings', 'frequency').setOpts(max=max_freq)
-                self.settings.child('clock_settings', 'frequency').emitStateChanged('max', max_freq)
-                self.settings.child('clock_settings', 'frequency')._emitOptionsChanged(
-                    self.settings.child('clock_settings', 'frequency'), {'max': max_freq})
-            else:
-                max_freq = self.controller.getAIMaxSingleRate(self.controller.device.name)
-                self.settings.child('clock_settings', 'frequency').setOpts(max=max_freq)
-                self.settings.child('clock_settings', 'frequency').emitStateChanged('max', max_freq)
-                self.settings.child('clock_settings', 'frequency')._emitOptionsChanged(
-                    self.settings.child('clock_settings', 'frequency'), {'max': max_freq})
+            max_freq = int(self.controller.getAIMaxSingleRate(self.controller.device.name))
+            self.settings.child('clock_settings', 'frequency').setOpts(max=max_freq)
+            self.settings.child('clock_settings', 'frequency').emitStateChanged('max', max_freq)
+            self.settings.child('clock_settings', 'frequency')._emitOptionsChanged(
+                self.settings.child('clock_settings', 'frequency'), {'max': max_freq})
         except:
             pass
-
-    def grab_data(self, Naverage=1, **kwargs):
-        """
-            | grab the current values with NIDAQ profile procedure.
-            |
-            | Send the data_grabed_signal once done.
-
-            =============== ======== ===============================================
-            **Parameters**  **Type**  **Description**
-            *Naverage*      int       Number of values to average
-            =============== ======== ===============================================
-        """
-        update = False
-
-        if 'live' in kwargs:
-            if kwargs['live'] != self.live:
-                update = True
-            self.live = kwargs['live']
-
-        if Naverage != self.Naverage:
-            self.Naverage = Naverage
-            update = True
-        if update:
-            self.update_task()
-
-        if self.controller.task is None:
-            self.update_task()
-
-        if self.settings['NIDAQ_type'] == ChannelType.ANALOG_INPUT.name:
-            try:
-                self.controller.register_callback(self.emit_data, "Nsamples", self.clock_settings.Nsamples)
-            except AttributeError:
-                logger.error("Can't find a task to run")
-        elif self.settings['NIDAQ_type'] == ChannelType.COUNTER_INPUT.name:
-            self.timer.start(self.settings['counter_settings', 'counting_time'])
-        self.controller.start()
-
-    def emit_data(self, task_handle, every_n_samples_event_type, number_of_samples, callback_data):
-        channels_names = [ch.name for ch in self.channels]
-        data_from_task = self.controller.task.read(self.settings['nsamplestoread'], timeout=20.0)
-        if not len(self.controller.task.channels.channel_names) != 1:
-            data_dfp = [np.array(data_from_task)]
-        else:
-            data_dfp = list(map(np.array, data_from_task))
-        self.dte_signal.emit(DataToExport(name='NIDAQmx',
-                                          data=[DataFromPlugins(name='Data from ' + self.controller.device.name,
-                                                                data=data_dfp,
-                                                                dim=f'Data{self.control_type}',
-                                                                labels=channels_names,
-                                                                ),
-                                                ]))
-        return 0  # mandatory for the NIDAQmx callback
 
     def stop(self):
         """Stop the current grab hardware wise if necessary"""

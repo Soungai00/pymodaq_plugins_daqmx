@@ -32,7 +32,7 @@ class DAQ_NIDAQmx_Actuator(DAQ_Move_base, DAQ_NIDAQmx_base):
                     'limits': ['Master', 'Slave']},
                    {'title': 'Axis:', 'name': 'axis', 'type': 'list', 'limits': stage_names},
 
-               ]}] + actuator_params
+               ]}] + actuator_params()
 
     def __init__(self, parent=None, params_state=None, control_type="Actuator"):
         DAQ_Move_base.__init__(self, parent, params_state)  # defines settings attribute and various other methods
@@ -95,7 +95,8 @@ class DAQ_NIDAQmx_Actuator(DAQ_Move_base, DAQ_NIDAQmx_base):
         self.status (edict): with initialization status: three fields:
             * info (str)
             * controller (object) initialized controller
-            *initialized: (bool): False if initialization failed otherwise True
+            * initialized: (bool): False if initialization failed otherwise True
+
         """
         try:
             # initialize the stage and its controller status

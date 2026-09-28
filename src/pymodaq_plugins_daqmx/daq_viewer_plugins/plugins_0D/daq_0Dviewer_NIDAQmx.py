@@ -2,18 +2,20 @@ import numpy as np
 from pymodaq_data import DataToExport
 from pymodaq.utils.data import DataFromPlugins
 from pymodaq_plugins_daqmx.hardware.national_instruments.NIDAQmx_Viewer import DAQ_NIDAQmx_Viewer
-from pymodaq_plugins_daqmx.hardware.national_instruments.NIDAQmx_base import ChannelType
+from pymodaq_plugins_daqmx.hardware.national_instruments.daqmxni import ChannelType
 from pymodaq.utils.logger import set_logger, get_module_name
 logger = set_logger(get_module_name(__file__))
 
-class DAQ_1DViewer_NIDAQmx(DAQ_NIDAQmx_Viewer):
+
+class DAQ_0DViewer_NIDAQmx(DAQ_NIDAQmx_Viewer):
     """
-    Plugin for bufferized 1D data visualization & acquisition with NI modules (plugged in NI cDAQ or NI-USB).
+    Plugin for 0D data visualization & acquisition with NI modules (plugged in NI cDAQ or NI-USB).
     """
-    live_mode_available = True
+    live_mode_available = False
+    acquisition_state = False
 
     def __init__(self, parent=None, params_state=None):
-        super().__init__(parent, params_state, control_type='1D')
+        super().__init__(parent, params_state, control_type='0D')
 
     def grab_data(self, Naverage=1, **kwargs):
         """
@@ -26,38 +28,23 @@ class DAQ_1DViewer_NIDAQmx(DAQ_NIDAQmx_Viewer):
             *Naverage*      int       Number of values to average
             =============== ======== ===============================================
         """
-        update = False
-
-        if 'live' in kwargs:
-            if kwargs['live'] != self.live:
-                update = True
-            self.live = kwargs['live']
-
-        if Naverage != self.Naverage:
-            self.Naverage = Naverage
-            update = True
-        if update:
-            self.update_task()
-
         if self.controller.task is None:
+            # In synchronous mode, acquisition rate does not come from clock settings but from each grab
             self.update_task()
 
-        if self.settings['NIDAQ_type'] == ChannelType.ANALOG_INPUT.name:
-            try:
-                self.controller.register_callback(self.emit_data, "Nsamples", self.clock_settings.Nsamples)
-            except AttributeError:
-                logger.error("Can't find a task to run")
-        elif self.settings['NIDAQ_type'] == ChannelType.COUNTER_INPUT.name:
+        if self.settings['NIDAQ_type'] == ChannelType.COUNTER_INPUT.name:
             self.timer.start(self.settings['counter_settings', 'counting_time'])
-        self.controller.start()
 
-    def emit_data(self, task_handle, every_n_samples_event_type, number_of_samples, callback_data):
+        if not self.acquisition_state:
+            self.controller.task.start()
+            self.acquisition_state = True
+
         channels_names = [ch.name for ch in self.channels]
-        data_from_task = self.controller.task.read(self.settings['nsamplestoread'], timeout=20.0)
-        if not len(self.controller.task.channels.channel_names) != 1:
-            data_dfp = [np.array(data_from_task)]
+        data_from_task = self.controller.task.read(timeout=20.0)
+        if isinstance(data_from_task, float):
+            data_dfp = [np.array([data_from_task])]
         else:
-            data_dfp = list(map(np.array, data_from_task))
+            data_dfp = list(map(lambda f: np.array([f]), data_from_task))
         self.dte_signal.emit(DataToExport(name='NIDAQmx',
                                           data=[DataFromPlugins(name='Data from ' + self.controller.device.name,
                                                                 data=data_dfp,
@@ -65,4 +52,15 @@ class DAQ_1DViewer_NIDAQmx(DAQ_NIDAQmx_Viewer):
                                                                 labels=channels_names,
                                                                 ),
                                                 ]))
-        return 0  # mandatory for the NIDAQmx callback
+
+    def stop(self):
+        """Stop the current grab hardware wise if necessary"""
+        self.acquisition_state = False
+        try:
+            self.controller.task.stop()
+            self.controller.task.close()
+            self.controller._task = None
+        except Exception as e:
+            logger.error(e)
+        finally:
+            DAQ_NIDAQmx_Viewer.stop(self)
