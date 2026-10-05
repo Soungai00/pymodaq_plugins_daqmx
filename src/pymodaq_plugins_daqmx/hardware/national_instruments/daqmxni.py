@@ -1,13 +1,10 @@
 import traceback
 import numpy as np
 from pymodaq.utils.logger import set_logger, get_module_name
-
-from nidaqmx.constants import (AcquisitionType, VoltageUnits, CurrentUnits, CurrentShuntResistorLocation, \
-                                TemperatureUnits, CJCSource, CountDirection, Level, FrequencyUnits, TimeUnits, \
-                                LineGrouping, UsageTypeAI, UsageTypeAO, UsageTypeCI, UsageTypeCO, Edge, \
-                                TerminalConfiguration, ThermocoupleType, ChannelType, ProductCategory, \
-                                RTDType, TemperatureUnits, ResistanceConfiguration, ExcitationSource)
-
+from nidaqmx.constants import AcquisitionType, VoltageUnits, CurrentUnits, CurrentShuntResistorLocation, \
+    TemperatureUnits, CJCSource, CountDirection, Level, FrequencyUnits, TimeUnits, LineGrouping, UsageTypeAI, \
+    UsageTypeAO, UsageTypeCI, UsageTypeCO, Edge, TerminalConfiguration, ThermocoupleType, ChannelType, \
+    ProductCategory, RTDType, TemperatureUnits, ResistanceConfiguration, ExcitationSource
 from nidaqmx.system import System as niSystem
 from nidaqmx.system.device import Device as niDevice
 from nidaqmx import Task as niTask

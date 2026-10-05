@@ -1,8 +1,8 @@
 import traceback
 
-from pymodaq_plugins_daqmx.hardware.national_instruments.daqmxni import niDevice
-from pymodaq_plugins_daqmx.hardware.national_instruments.NIDAQmx_base import NIDAQmx, DAQ_NIDAQmx_base, TerminalConfiguration, \
-
+from pymodaq_plugins_daqmx.hardware.national_instruments.daqmxni import niDevice, niSystem, ProductCategory
+from pymodaq_plugins_daqmx.hardware.national_instruments.NIDAQmx_base import NIDAQmx, DAQ_NIDAQmx_base, \
+    TerminalConfiguration, UsageTypeAI, ChannelType, RTDType
 from pymodaq.control_modules.viewer_utility_classes import DAQ_Viewer_base, comon_parameters as viewer_params
 from pymodaq.utils.daq_utils import ThreadCommand
 from pymodaq.utils.logger import set_logger, get_module_name
