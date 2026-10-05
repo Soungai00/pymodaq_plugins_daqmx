@@ -456,15 +456,15 @@ class NIDAQmx:
                                                                        "")
                         elif channel.analog_type == UsageTypeAI.TEMPERATURE_RTD:
                             ai_rtd_chan = self._task.ai_channels.add_ai_rtd_chan(channel.name,
-                                                                       "",
-                                                                       channel.value_min,
-                                                                       channel.value_max,
-                                                                       units=channel.units,
-                                                                       rtd_type=channel.rtd_type,
-                                                                       resistance_config=channel.resistance_config,
-                                                                   current_excit_source=channel.current_excit_source,
-                                                                   current_excit_val=channel.current_excit_val,
-                                                                       r_0=channel.r_0)
+                                                                                 "",
+                                                                                 channel.value_min,
+                                                                                 channel.value_max,
+                                                                                 channel.units,
+                                                                                 channel.rtd_type,
+                                                                                 channel.resistance_config,
+                                                                                 channel.current_excit_source,
+                                                                                 channel.current_excit_val,
+                                                                                 channel.r_0)
                             if ai_rtd_chan.ai_rtd_type == RTDType["CUSTOM"]:
                                 # configuration of callendar-van dusen coefficients
                                 ai_rtd_chan.ai_rtd_a = channel.a_cvd_coeff

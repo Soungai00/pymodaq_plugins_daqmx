@@ -229,8 +229,8 @@ class DAQ_NIDAQmx_Viewer(DAQ_Viewer_base, DAQ_NIDAQmx_base):
             elif param.name() == 'save_config' and param.value():
                 logger.info("********** CONFIGURATION BACKING UP SEQUENCE INITIALIZED **********")
                 try:
-                    config_dict = {'title' : 'Configuration file of the DAQmx plugin', 'NIDAQ_Devices': {}}
-                    devices_collection = nidaqmx.system.System.local().devices
+                    config_dict = {'title': 'Configuration file of the DAQmx plugin', 'NIDAQ_Devices': {}}
+                    devices_collection = niSystem.local().devices
 
                     # CONFIGURATION OF THE "DEVICES"
                     for device in devices_collection:
