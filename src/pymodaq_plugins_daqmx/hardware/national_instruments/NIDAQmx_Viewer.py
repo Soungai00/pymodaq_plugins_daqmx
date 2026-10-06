@@ -14,6 +14,29 @@ from pathlib import WindowsPath
 logger = set_logger(get_module_name(__file__))
 
 
+def merge_dicts_recursive(original: dict, update: dict) -> dict:
+    """
+    Recursively merges two dictionaries.
+    - Keys/values from `update` add or modify those in `original`.
+    - Empty values (None, {}, [], etc.) in `update` are ignored.
+    - Nested dictionaries are merged recursively.
+    """
+    merged = original.copy()  # Start with a copy of the original to avoid mutation
+    for key, value in update.items():
+        # Skip empty values (None, empty dict, empty list, etc.)
+        if value is None or (isinstance(value, (dict, list, set)) and not value):
+            continue
+
+        # If the key exists in both dictionaries and both values are dictionaries,
+        # recursively merge them
+        if key in merged and isinstance(merged[key], dict) and isinstance(value, dict):
+            merged[key] = merge_dicts_recursive(merged[key], value)
+        else:
+            # Otherwise, overwrite or add the value
+            merged[key] = value
+    return merged
+
+
 class DAQ_NIDAQmx_Viewer(DAQ_Viewer_base, DAQ_NIDAQmx_base):
     """
         ==================== ========================
@@ -323,8 +346,11 @@ class DAQ_NIDAQmx_Viewer(DAQ_Viewer_base, DAQ_NIDAQmx_base):
                         chan_id = abbrev_chan_type+chan_id_num
                         config_dict['NIDAQ_Devices'][chassis_id][module_id][abbrev_chan_type][physical_chan_name] = cfs_config_dict
 
+                    merged_config = merge_dicts_recursive(original=daqmx_config(), update=config_dict)
+                    daqmx_config().update(merged_config)
+                    daqmx_config.save()
                     config_file_path = daqmx_config.config_path
-                    utils_config.create_toml_from_dict(config_dict, config_file_path)
+                    utils_config.create_toml_from_dict(daqmx_config(), config_file_path)
                     logger.info("********** CONFIGURATION BACKING UP SEQUENCE SUCCESSFULLY ENDED **********")
                 except Exception as err:
                     logger.info("Configuration sequence error, verify if your config matches the hardware: {}".format(err))
