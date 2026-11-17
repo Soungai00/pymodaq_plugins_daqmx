@@ -1,6 +1,7 @@
 import numpy as np
 from pymodaq_data import DataToExport
 from pymodaq.utils.data import DataFromPlugins
+from pymodaq.control_modules.viewer_utility_classes import main
 from pymodaq_plugins_daqmx.hardware.national_instruments.NIDAQmx_Viewer import DAQ_NIDAQmx_Viewer
 from pymodaq_plugins_daqmx.hardware.national_instruments.NIDAQmx_base import ChannelType
 from pymodaq.utils.logger import set_logger, get_module_name
@@ -66,3 +67,9 @@ class DAQ_1DViewer_NIDAQmx(DAQ_NIDAQmx_Viewer):
                                                                 ),
                                                 ]))
         return 0  # mandatory for the NIDAQmx callback
+
+
+
+
+if __name__ == "__main__":
+    main(__file__, init=False)
